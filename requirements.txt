@@ -1,0 +1,23 @@
+streamlit==1.37.1
+requests==2.32.5
+
+chromadb==1.5.9
+
+FlagEmbedding==1.2.11
+sentence-transformers==5.1.2
+
+# torch is installed in the Dockerfile from the CPU-only index (same 2.8.0 pin).
+# Do not add it back here: a bare `torch==2.8.0` resolves to the CUDA build from PyPI,
+# which drags in ~15 nvidia-*-cu12 wheels that are useless on this AMD machine.
+transformers==4.57.6
+accelerate==1.10.1
+peft==0.11.1
+
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.6.1
+
+pandas==2.2.2
+pyarrow==17.0.0
+
+sentencepiece==0.2.1

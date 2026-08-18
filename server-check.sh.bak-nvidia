@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -u
+
+echo "=== OS ==="
+cat /etc/os-release | grep -E '^(NAME|VERSION|VERSION_ID)=' || true
+
+echo -e "\n=== Architecture ==="
+uname -m
+
+echo -e "\n=== CPU ==="
+lscpu | grep -E 'Model name|CPU\(s\)' | head -5 || true
+
+echo -e "\n=== RAM ==="
+free -h
+
+echo -e "\n=== Disk ==="
+df -h /
+
+echo -e "\n=== NVIDIA ==="
+if command -v nvidia-smi >/dev/null 2>&1; then nvidia-smi; else echo "nvidia-smi not found"; fi
+
+echo -e "\n=== Docker ==="
+if command -v docker >/dev/null 2>&1; then
+  docker --version
+  docker compose version || true
+else
+  echo "Docker not installed"
+fi
+
+echo -e "\n=== LM Studio CLI ==="
+if command -v lms >/dev/null 2>&1; then lms --version || lms --help | head -5; else echo "lms/llmster not installed"; fi
+
+echo -e "\n=== Ports ==="
+ss -lntp 2>/dev/null | grep -E ':1234|:8501|:80|:443' || echo "No target ports currently listening"

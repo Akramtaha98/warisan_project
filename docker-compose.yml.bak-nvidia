@@ -1,0 +1,19 @@
+services:
+  chatbot:
+    build:
+      context: .
+    image: dbp-chatbot:1.0
+    container_name: dbp-chatbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Linux-only and intentional: lets the container call llmster on host 127.0.0.1:1234
+    # without exposing the LM Studio API to the faculty network.
+    network_mode: host
+    volumes:
+      - ./data/chroma_db:/app/data/chroma_db
+      - ./data_eval:/app/data_eval
+      - huggingface-cache:/root/.cache/huggingface
+
+volumes:
+  huggingface-cache:

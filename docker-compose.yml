@@ -1,0 +1,47 @@
+services:
+  llm:
+    image: ghcr.io/ggml-org/llama.cpp:server-vulkan
+    container_name: dbp-llm
+    restart: unless-stopped
+    devices:
+      - /dev/dri
+      - /dev/kfd
+    group_add:
+      - "${RENDER_GID}"
+      - "${VIDEO_GID}"
+    volumes:
+      - llama-cache:/root/.cache/llama.cpp
+    command: >
+      -hf ${LLAMA_HF_REPO}
+      --host 0.0.0.0
+      --port 8080
+      -ngl 99
+    networks:
+      - dbp-internal
+
+  chatbot:
+    build:
+      context: .
+    image: dbp-chatbot:1.0
+    container_name: dbp-chatbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${CHATBOT_HOST_PORT}:8501"
+    volumes:
+      - ./data/chroma_db:/app/data/chroma_db
+      - ./data_eval:/app/data_eval
+      - huggingface-cache:/root/.cache/huggingface
+    networks:
+      - dbp-internal
+    depends_on:
+      - llm
+
+networks:
+  dbp-internal:
+    driver: bridge
+
+volumes:
+  huggingface-cache:
+  llama-cache:

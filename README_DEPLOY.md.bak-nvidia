@@ -1,0 +1,169 @@
+# DBP Chatbot – Faculty Ubuntu Deployment
+
+## First-deployment architecture
+
+- Ubuntu x86_64 faculty workstation/server
+- NVIDIA RTX 5090 runs Gemma 3 4B through LM Studio `llmster` on the host
+- Docker Compose runs Streamlit + BGE-M3 + BGE reranker + ChromaDB client
+- Retrieval/reranking remain CPU-only for the first validation run
+- Docker uses Linux host networking so the container can reach `127.0.0.1:1234`; LM Studio does not need to be exposed to the LAN
+- Final Chroma collection: `dbp_khidmatnasihat_clean_atomic` (33,320 records)
+
+## Important compatibility correction
+
+The final ChromaDB folder uses the SQLite/PersistentClient-era storage format. The deployment therefore uses `chromadb==1.5.9`. Do not downgrade the deployment container to `chromadb==0.3.29`; Chroma 0.4+ changed persistent storage from DuckDB/Parquet to SQLite.
+
+## 0. Before tomorrow / transfer
+
+Keep the full ChromaDB folder intact. It must contain `chroma.sqlite3` and all UUID/HNSW directories.
+
+Recommended final layout:
+
+```text
+DBP_Chatbot_Deploy/
+  app/
+  data/chroma_db/
+  data_eval/
+  Dockerfile
+  docker-compose.yml
+  requirements.txt
+  .env
+  server-check.sh
+  verify_chroma.py
+```
+
+## 1. Preflight on the faculty machine
+
+```bash
+chmod +x server-check.sh
+./server-check.sh
+```
+
+Do not continue with model deployment until `nvidia-smi` correctly shows the RTX 5090.
+
+## 2. Docker
+
+Use Docker Engine + Docker Compose plugin on Ubuntu. After installation verify:
+
+```bash
+docker --version
+docker compose version
+sudo systemctl enable --now docker
+```
+
+Optional: add the operator to Docker's group and log out/in before continuing:
+
+```bash
+sudo usermod -aG docker "$USER"
+```
+
+## 3. Install llmster
+
+```bash
+curl -fsSL https://lmstudio.ai/install.sh | bash
+lms --help
+```
+
+Download/load the thesis model and confirm the exact identifier. The code expects:
+
+```text
+google/gemma-3-4b
+```
+
+Useful commands:
+
+```bash
+lms ls
+lms get google/gemma-3-4b
+lms load google/gemma-3-4b --yes
+lms server start
+curl http://127.0.0.1:1234/v1/models
+```
+
+If `lms ls` exposes a different model identifier, update `LMSTUDIO_MODEL` in `.env` before starting the chatbot.
+
+For the initial deployment, keep the LM Studio server bound to localhost. Docker host networking is deliberately used so the chatbot can reach it without exposing port 1234 to the faculty network.
+
+## 4. Back up ChromaDB before first container start
+
+The deployment uses the ChromaDB folder read/write because Chroma may need housekeeping/schema checks. Keep a pristine backup before opening it:
+
+```bash
+cp -a data/chroma_db data/chroma_db.backup-before-deploy
+```
+
+## 5. Build the chatbot
+
+```bash
+docker compose build
+```
+
+The first build/download can take time because PyTorch, BGE-M3 and the reranker are sizeable dependencies/models.
+
+## 6. Verify ChromaDB before launching Streamlit
+
+```bash
+docker compose run --rm chatbot python /app/verify_chroma.py
+```
+
+If the above path is unavailable because only `/app` was copied into the image, use the host-side verification after the image starts, or copy `verify_chroma.py` into `/app`. The packaged Dockerfile copies it in the updated kit.
+
+Expected result:
+
+```text
+Collection        : dbp_khidmatnasihat_clean_atomic
+Document count    : 33320
+Expected count    : 33320
+OK: ChromaDB final collection verified.
+```
+
+## 7. Start Streamlit
+
+```bash
+docker compose up -d
+
+docker compose ps
+docker compose logs -f chatbot
+```
+
+Health check:
+
+```bash
+curl http://127.0.0.1:8501/_stcore/health
+```
+
+Local/LAN test:
+
+```text
+http://SERVER-IP:8501
+```
+
+Do not publish port 8501 directly to the Internet as the final provider URL. First validate the chatbot locally/LAN; then faculty IT should place it behind HTTPS/reverse proxy/access control.
+
+## 8. Smoke-test order
+
+1. Chroma collection count = 33,320.
+2. LM Studio `/v1/models` returns Gemma 3 4B.
+3. Streamlit health endpoint returns OK.
+4. Ask 3 known answerable DBP questions.
+5. Ask 1 insufficient-context/refusal question.
+6. Ask 1 out-of-domain question.
+7. Submit one feedback rating and verify `data_eval/user_feedback.csv` changes.
+8. Reboot only after the above works, then configure auto-start.
+
+## 9. Auto-start llmster after functional validation
+
+Create a systemd service only after the manual run succeeds. Follow LM Studio's current headless Linux service guide, using the actual Linux username and exact model id. The service should bring up the daemon, load the model, start the HTTP server, and shut down cleanly.
+
+Docker itself is already configured with `restart: unless-stopped`.
+
+## 10. Security before external access
+
+Before giving the data provider an external URL:
+
+- HTTPS/reverse proxy
+- authentication or faculty access control
+- do not expose LM Studio port 1234 publicly
+- restrict SSH/admin access
+- decide whether feedback/chat logs may contain provider data
+- retain a backup of ChromaDB and the deployment package
