@@ -111,8 +111,8 @@ def inject_css() -> None:
                 --bg-panel: rgba(17, 24, 39, 0.78);
                 --bg-panel-solid: #111827;
                 --border-soft: rgba(148, 163, 184, 0.20);
-                --text-main: #e5e7eb;
-                --text-muted: #a7b0c0;
+                --text-main: #f1f5f9;
+                --text-muted: #c3cbd9;
                 --accent: #a78bfa;
                 --accent-2: #22d3ee;
                 --success: #34d399;
@@ -308,10 +308,25 @@ def inject_css() -> None:
                 margin-bottom: 0.75rem;
             }
 
+            /* These had no colour at all, so they inherited Streamlit's default
+               text colour instead of the dark-theme one. */
+            div[data-testid="stChatMessage"],
+            div[data-testid="stChatMessage"] p,
+            div[data-testid="stChatMessage"] li,
+            div[data-testid="stChatMessage"] span,
+            div[data-testid="stChatMessage"] strong {
+                color: var(--text-main);
+            }
+
             div[data-testid="stChatMessage"] p,
             div[data-testid="stChatMessage"] li {
                 line-height: 1.72;
                 font-size: 1rem;
+            }
+
+            div[data-testid="stChatMessage"] strong {
+                font-weight: 700;
+                color: #ffffff;
             }
 
             .feedback-panel {
@@ -322,8 +337,15 @@ def inject_css() -> None:
                 border: 1px solid rgba(148, 163, 184, 0.16);
             }
 
+            /* Only the sidebar variant was styled before, so main-area captions
+               such as "Sahkan jawapan ini:" stayed dim and hard to read. */
+            .block-container [data-testid="stCaptionContainer"] p {
+                color: var(--text-muted);
+                font-size: 0.88rem;
+            }
+
             .feedback-title {
-                color: #cbd5e1;
+                color: var(--text-muted);
                 font-size: 0.9rem;
                 margin-bottom: 0.55rem;
             }
@@ -363,13 +385,51 @@ def inject_css() -> None:
                 margin-top: 2rem;
                 padding: 1rem;
                 text-align: center;
-                color: #94a3b8;
+                color: var(--text-muted);
                 font-size: 0.85rem;
                 border-top: 1px solid rgba(148, 163, 184, 0.14);
             }
 
+            /* The bottom bar kept Streamlit's light chrome, which read as a white
+               slab under the dark gradient. Make it part of the page instead. */
+            div[data-testid="stBottom"],
+            div[data-testid="stBottomBlockContainer"] {
+                background: transparent !important;
+            }
+
+            div[data-testid="stBottom"] > div {
+                background: linear-gradient(180deg, rgba(11, 16, 32, 0), rgba(11, 16, 32, 0.92) 38%);
+                backdrop-filter: blur(6px);
+            }
+
+            .stChatInput {
+                background: rgba(15, 23, 42, 0.92) !important;
+                border: 1px solid rgba(167, 139, 250, 0.32) !important;
+                border-radius: 999px !important;
+                box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+            }
+
+            .stChatInput:focus-within {
+                border-color: rgba(34, 211, 238, 0.65) !important;
+            }
+
             .stChatInput textarea {
                 border-radius: 999px !important;
+                background: transparent !important;
+                color: var(--text-main) !important;
+            }
+
+            .stChatInput textarea::placeholder {
+                color: #93a0b4 !important;
+                opacity: 1;
+            }
+
+            .stChatInput button {
+                color: var(--accent) !important;
+            }
+
+            .stChatInput button:hover {
+                color: var(--accent-2) !important;
             }
 
             @media (max-width: 768px) {
