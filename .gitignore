@@ -22,6 +22,10 @@ __pycache__/
 .DS_Store
 __MACOSX/
 
+# ---- React build artifacts ----
+frontend/node_modules/
+frontend/dist/
+
 # ---- Local completion-check evidence ----
 .unlazy/
 .unlazy-hook-state.json

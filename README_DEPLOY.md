@@ -32,14 +32,14 @@ knowledge base, and prints the URL. It is safe to re-run at any time.
 Two containers on a private Docker network:
 
 ```
-dbp-chatbot   Streamlit UI + BGE-M3 embeddings + BGE reranker + ChromaDB client   (CPU)
+dbp-chatbot   React UI + FastAPI + BGE-M3 + BGE reranker + ChromaDB                (CPU)
      |
      |  http://llm:8080/v1/   (private network, never published to the LAN)
      v
 dbp-llm       llama.cpp Vulkan server + Qwen3 8B (Q5_K_M GGUF)                    (GPU)
 ```
 
-- Only the Streamlit port is published to the host. The LLM API is deliberately unreachable from outside Docker.
+- Only the React/FastAPI port is published to the host. The LLM API is deliberately unreachable from outside Docker.
 - Retrieval and reranking run on **CPU**; only text generation uses the GPU.
 - Knowledge base: `dbp_khidmatnasihat_clean_atomic`, **33,320 documents**, in `data/chroma_db/`.
 - Everything runs locally. Nothing is sent to any cloud service. The only outbound traffic is a
@@ -55,7 +55,7 @@ dbp-llm       llama.cpp Vulkan server + Qwen3 8B (Q5_K_M GGUF)                  
 | GPU | AMD Radeon with `amdgpu` driver active — `/dev/dri` and `/dev/kfd` must exist |
 | Docker | Docker Engine + `docker compose` plugin |
 | Disk | ~14 GB free (3 GB image + build cache + ~5.9 GB model) |
-| Network | Access to Docker Hub, ghcr.io and huggingface.co for the first run |
+| Network | Access to Docker Hub, ghcr.io, npmjs.com, PyPI and huggingface.co for the first run |
 
 You do **not** need to be in the host `render`/`video` groups. The Compose file grants
 those groups inside the container via `group_add`, which is why this works on a shared
@@ -142,10 +142,11 @@ docker run --rm --network dbp-chatbot_dbp-internal curlimages/curl:latest \
   -fsS http://llm:8080/v1/models
 ```
 
-**Streamlit:**
+**Web application:**
 
 ```bash
-curl http://127.0.0.1:18501/_stcore/health   # -> ok
+curl http://127.0.0.1:18501/api/health
+# -> {"status":"ready", ...}
 ```
 
 ---
@@ -173,7 +174,7 @@ torchvision 0.18.1+cpu has requirement torch==2.3.1, but you have torch 2.8.0
 torch. The Dockerfile installed torch 2.3.1 + torchvision 0.18.1 from the CPU index,
 then `requirements.txt` installed `torch==2.8.0`, which upgraded torch but left
 torchvision compiled against the old ABI. The import chain
-`app.py → phase5_generation → phase4_retrieval_rerank → FlagEmbedding → transformers →
+`FastAPI → phase5_generation → phase4_retrieval_rerank → FlagEmbedding → transformers →
 image_utils → torchvision` then died.
 
 This is now fixed and must stay fixed:
@@ -220,7 +221,7 @@ Avoid `down -v` unless you intend to delete the cached Qwen3 model.
 
 ## Network exposure
 
-By default Docker publishes the Streamlit port on `0.0.0.0`, so the chatbot is reachable
+By default Docker publishes the web application port on `0.0.0.0`, so the chatbot is reachable
 from the whole faculty LAN at `http://<server-ip>:18501`, not just from the server itself.
 
 For a first installation, prefer an SSH tunnel from your own laptop:
@@ -246,7 +247,7 @@ llama.cpp port unpublished, and confirm firewall changes with faculty IT.
 
 1. Chroma count is exactly 33,320
 2. `--list-devices` shows the Radeon, not `llvmpipe`
-3. Streamlit health returns `ok`
+3. `/api/health` reports `ready`
 4. Three known-answerable DBP questions return sensible Malay answers
 5. One insufficient-context question triggers the refusal path
 6. One out-of-domain question is refused rather than answered from a weak match
@@ -268,7 +269,9 @@ llama.cpp port unpublished, and confirm firewall changes with faculty IT.
 | `requirements.txt` | Python deps. Deliberately contains no `torch` line |
 | `.env` | Generated per-machine by `deploy.sh` — do not copy between servers |
 | `.env.example` | Reference template only |
-| `app/ui/app.py` | Streamlit interface |
+| `frontend/` | Responsive React/Vite interface |
+| `app/api/main.py` | FastAPI routes and React static serving |
+| `app/api/service.py` | Chat response and feedback service logic |
 | `app/scripts/phase4_retrieval_rerank.py` | Retrieval + reranking + HyDE |
 | `app/scripts/phase5_generation.py` | Prompting and generation against llama.cpp |
 | `app/verify_chroma.py` | Knowledge base integrity check |

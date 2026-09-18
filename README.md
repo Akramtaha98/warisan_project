@@ -21,7 +21,7 @@ and no question is sent to a hosted AI service.
 | Weak-query recovery | Adaptive retrieval and query-specific HyDE |
 | Answer generation | Qwen3 8B (Q5_K_M GGUF) through llama.cpp |
 | Selective reasoning | Complex questions use `/think`; direct questions use `/no_think` |
-| Local interface | Streamlit chat UI with feedback and optional technical details |
+| Local interface | Responsive React UI with source previews, feedback, and system status |
 
 This is a **DBP language-advisory assistant**, not a general-purpose knowledge bot.
 Qwen3 improves Malay generation and reasoning, but it is not allowed to invent an
@@ -54,14 +54,14 @@ User question
 ### Runtime layout
 
 ```text
-dbp-chatbot   Streamlit + retrieval + reranking + ChromaDB client              CPU
+dbp-chatbot   React UI + FastAPI + retrieval + reranking + ChromaDB            CPU
      │
      │  http://llm:8080/v1/  private Docker network
      ▼
 dbp-llm       llama.cpp Vulkan server + Qwen3 8B (Q5_K_M GGUF)                 GPU
 ```
 
-Only the Streamlit port is published. The llama.cpp API is not exposed to the LAN.
+Only the web application port is published. The llama.cpp API is not exposed to the LAN.
 The target machine is an AMD Radeon system using Vulkan; ROCm and CUDA are not used.
 
 ---
@@ -74,9 +74,11 @@ warisan_project/
 │   ├── scripts/
 │   │   ├── phase4_retrieval_rerank.py   # retrieval, reranking, expansion, HyDE
 │   │   └── phase5_generation.py         # intent routing and grounded generation
-│   ├── ui/app.py                        # Streamlit interface
+│   ├── api/main.py                      # FastAPI routes and React static serving
+│   ├── api/service.py                   # framework-independent API behavior
 │   ├── smoke_live.py                    # deployed reasoning smoke test
 │   └── verify_chroma.py                 # knowledge-base integrity check
+├── frontend/                            # React/Vite application and UI tests
 ├── data/chroma_db/                      # external knowledge base; git-ignored
 ├── data_eval/                           # runtime feedback data
 ├── tests/                               # fast regression suite
@@ -99,7 +101,7 @@ warisan_project/
 | GPU | AMD Radeon with `/dev/dri` and `/dev/kfd` available |
 | Free disk | At least 14 GB for images, Qwen3, BGE models, and build cache |
 | Knowledge base | `data/chroma_db/chroma.sqlite3`, supplied separately |
-| Network | Required only for the initial image and model downloads |
+| Network | Required initially for images, Python/React packages, and model downloads |
 
 Tested target hardware: GMKtec EVO-X2 with Ryzen AI Max+ 395 / Radeon 8060S.
 
@@ -156,7 +158,7 @@ The script:
 4. Downloads and starts Qwen3 8B Q5 on first use.
 5. Builds the chatbot image.
 6. Verifies that ChromaDB contains exactly 33,320 documents.
-7. Starts Streamlit and prints the local URL.
+7. Starts the React/FastAPI application and prints the local URL.
 
 The first deployment downloads roughly 5.9 GB of Qwen3 weights plus the BGE model
 files. Later starts reuse Docker volumes and the Hugging Face cache.
@@ -266,7 +268,7 @@ Important variables:
 | `LMSTUDIO_MODEL` | Model identifier sent to the OpenAI-compatible API |
 | `LLAMA_HF_REPO` | Hugging Face GGUF repository and quantization |
 | `RAG_DEVICE` | Device used for embeddings and reranking; defaults to CPU |
-| `CHATBOT_HOST_PORT` | Streamlit port published on the host |
+| `CHATBOT_HOST_PORT` | React/FastAPI port published on the host |
 | `RENDER_GID`, `VIDEO_GID` | Host-specific AMD device group IDs |
 
 The `LMSTUDIO_*` names remain for compatibility with the application code. LM Studio
@@ -282,9 +284,9 @@ Run the fast smoke test before committing or deploying:
 ./smoke-test.sh
 ```
 
-It checks Python compilation, deployment script syntax, Qwen3 configuration, adaptive
-retrieval, HyDE relevance, resource caching, intent routing, and private-reasoning
-removal.
+It checks the React production build, frontend API behavior, Python compilation,
+deployment syntax, Qwen3 configuration, adaptive retrieval, HyDE relevance, resource
+caching, intent routing, feedback safety, and private-reasoning removal.
 
 To run the regression suite directly:
 

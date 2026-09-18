@@ -47,7 +47,7 @@ preflight() {
     || die "data/chroma_db/chroma.sqlite3 not found. You are either in the wrong folder, or the DB is nested one level too deep (data/chroma_db/chroma_db/). Fix the folder level before continuing."
   ok "ChromaDB present ($(du -h data/chroma_db/chroma.sqlite3 | cut -f1))"
 
-  for f in Dockerfile docker-compose.yml requirements.txt; do
+  for f in Dockerfile docker-compose.yml requirements.txt frontend/package.json frontend/package-lock.json; do
     [ -f "$f" ] || die "$f is missing - this is not a complete deployment folder."
   done
   ok "Deployment folder looks complete"
@@ -119,7 +119,7 @@ RAG_ANSWER_SCORE=0.8
 # GGUF model pulled by llama.cpp on first start.
 LLAMA_HF_REPO=Qwen/Qwen3-8B-GGUF:Q5_K_M
 
-# Streamlit port published to the host.
+# React/FastAPI port published to the host.
 CHATBOT_HOST_PORT=${port}
 
 # AMD GPU passthrough - DETECTED ON THIS MACHINE, do not copy between servers.
@@ -128,7 +128,7 @@ VIDEO_GID=${video_gid}
 ENV_EOF
 
   ok "GPU groups detected: render=${render_gid} video=${video_gid}"
-  ok "Streamlit port: ${port}"
+  ok "Chatbot port: ${port}"
 }
 
 # ------------------------------------------------------------------ deploy --
@@ -184,10 +184,10 @@ main() {
 
   step "Starting the chatbot"
   dc up -d
-  echo "  Waiting for Streamlit..."
+  echo "  Waiting for the React/FastAPI application..."
   waited=0
-  until curl -fsS "http://127.0.0.1:${port}/_stcore/health" >/dev/null 2>&1; do
-    [ "$waited" -ge 180 ] && die "Streamlit did not come up. Check: docker compose -p ${PROJECT} logs chatbot"
+  until curl -fsS "http://127.0.0.1:${port}/api/health" >/dev/null 2>&1; do
+    [ "$waited" -ge 180 ] && die "The chatbot did not come up. Check: docker compose -p ${PROJECT} logs chatbot"
     sleep 5; waited=$((waited + 5))
   done
 

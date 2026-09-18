@@ -1,25 +1,25 @@
-# Gates: DBP chatbot reasoning and answer quality
+# Gates: modern React chatbot experience
 
-OWNS: app/scripts/**, app/ui/app.py, tests/**, .env.example, .gitignore, deploy.sh, docker-compose.yml, Dockerfile, README.md, README_DEPLOY.md, GATES.md
+OWNS: frontend/**, app/api/**, app/ui/**, .streamlit/**, tests/**, .dockerignore, .env.example, .gitignore, Dockerfile, deploy.sh, requirements.txt, smoke-test.sh, README.md, README_DEPLOY.md, GATES.md
 
-Scope: improve retrieval, grounded reasoning, resource reuse, and Qwen3 deployment defaults without weakening DBP-source grounding
+Scope: replace the Streamlit interface with a responsive React chatbot backed by a tested FastAPI contract and the existing grounded Qwen3 pipeline
 
-- [x] G1: retrieval configuration expands medium-confidence searches and returns up to six grounded chunks
-  CHECK: python3 -m unittest tests.test_rag_quality.RetrievalPolicyTests -v && printf 'retrieval-policy-passed\n'
-  EXPECT: retrieval-policy-passed
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=0fd21dfd37144b1efb9c765b22498f70c332f4d655b58e741ee129d322bb7b12; output-bytes=586
+- [x] G1: the React application tests and produces a deployable production bundle
+  CHECK: npm --prefix frontend run verify && printf 'react-bundle-verified\n'
+  EXPECT: react-bundle-verified
+  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=43e51bbb364a827e85f490184800da9e76c095824a8b300ec0e4b4e6765ab1ad; output-bytes=1254
 
-- [x] G2: HyDE follows the actual Malay query and expensive RAG resources are cached
-  CHECK: python3 -m unittest tests.test_rag_quality.HydeAndResourceTests -v && printf 'hyde-resource-passed\n'
-  EXPECT: hyde-resource-passed
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=3447b5eb9f73fb8f90f9d0b91aee59aecae7d06dc85b6566148cab922003fc93; output-bytes=468
+- [x] G2: the HTTP API validates questions, returns reasoning metadata, and records feedback safely
+  CHECK: python3 -m unittest tests.test_api_contract -v && printf 'api-contract-verified\n'
+  EXPECT: api-contract-verified
+  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=715ff24593cfd6f4ae0f0ad625ec4903c761279197617127b912696211a092b8; output-bytes=787
 
-- [x] G3: generation routes complex questions through private thinking and does not reject supported answers through brittle keyword guards
-  CHECK: python3 -m unittest tests.test_generation_quality -v && printf 'generation-quality-passed\n'
-  EXPECT: generation-quality-passed
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=8fc937a82893ac410c74b4adf485088e96ce0f35e9fe71bde6ea65d4192e3495; output-bytes=851
+- [x] G3: the project smoke test covers Python, React, deployment configuration, and reasoning regressions
+  CHECK: ./smoke-test.sh && printf 'full-stack-smoke-verified\n'
+  EXPECT: full-stack-smoke-verified
+  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=af747d59905c90d37f36a88cd8ede021f4149d1418db8107f4303ffbf3ddbf4c; output-bytes=4851
 
-- [x] G4: source compiles and Qwen3 deployment defaults are consistent across configuration and documentation
-  CHECK: python3 -m compileall -q app tests && bash -n deploy.sh && python3 -m unittest discover -s tests -v && printf 'full-quality-suite-passed\n'
-  EXPECT: full-quality-suite-passed
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=852dd0a7c9581f85c739e8bc403ada3300aab287c980a70990e54a6382e203c3; output-bytes=1955
+- [x] G4: container and documentation consistently describe FastAPI serving the built React interface
+  CHECK: python3 -m unittest tests.test_deployment_config -v && printf 'react-deployment-verified\n'
+  EXPECT: react-deployment-verified
+  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=3d428eb9bff2/23 entries; EXPECT=matched; output-sha256=7f55f189d8d64206e40b400633656ed87a741d2e2047ac84395593b8328c1e94; output-bytes=660

@@ -1,3 +1,12 @@
+FROM node:22-alpine AS frontend-build
+
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+
 FROM python:3.10-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -24,13 +33,13 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 
 COPY app /app
-COPY .streamlit /root/.streamlit
+COPY --from=frontend-build /frontend/dist /app/frontend_dist
 
 RUN mkdir -p /app/data/chroma_db /app/data_eval
 
 EXPOSE 8501
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=5 \
-  CMD curl -f http://127.0.0.1:8501/_stcore/health || exit 1
+  CMD curl -f http://127.0.0.1:8501/api/health || exit 1
 
-CMD ["streamlit", "run", "ui/app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8501", "--workers", "1"]

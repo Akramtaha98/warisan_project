@@ -22,6 +22,19 @@ class DeploymentConfigurationTests(unittest.TestCase):
         compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
         self.assertIn("--ctx-size 8192", compose)
 
+    def test_container_builds_react_and_serves_it_with_fastapi(self):
+        dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+        requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("FROM node:22-alpine AS frontend-build", dockerfile)
+        self.assertIn("/frontend/dist /app/frontend_dist", dockerfile)
+        self.assertIn('CMD ["uvicorn", "api.main:app"', dockerfile)
+        self.assertIn("fastapi==", requirements)
+        self.assertIn("uvicorn[standard]==", requirements)
+        self.assertNotIn("streamlit==", requirements.lower())
+        self.assertIn("React", readme)
+        self.assertIn("FastAPI", readme)
+
 
 if __name__ == "__main__":
     unittest.main()
