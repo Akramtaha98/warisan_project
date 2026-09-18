@@ -13,6 +13,8 @@ import {
   Menu,
   MessageCircleMore,
   Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   RotateCcw,
   Search,
@@ -63,7 +65,7 @@ function formatHistoryTime(timestamp) {
   return date.toLocaleDateString("ms-MY", { day: "numeric", month: "short" });
 }
 
-function Sidebar({ open, onClose, onNewChat, sessions, activeSessionId, onSelectSession, onDeleteSession, health }) {
+function Sidebar({ open, collapsed, onClose, onToggleCollapse, onNewChat, sessions, activeSessionId, onSelectSession, onDeleteSession, health }) {
   const demo = health?.mode === "vercel-demo";
   const [historyQuery, setHistoryQuery] = useState("");
   const visibleSessions = useMemo(() => {
@@ -73,19 +75,31 @@ function Sidebar({ open, onClose, onNewChat, sessions, activeSessionId, onSelect
   return (
     <>
       {open && <button className="sidebar-scrim" onClick={onClose} aria-label="Tutup menu" />}
-      <aside className={`sidebar ${open ? "is-open" : ""}`}>
+      <aside className={`sidebar ${open ? "is-open" : ""} ${collapsed ? "is-collapsed" : ""}`}>
         <div className="sidebar-top">
           <Brand />
+          <button
+            className="icon-button sidebar-collapse"
+            onClick={onToggleCollapse}
+            aria-label={collapsed ? "Kembangkan panel sisi" : "Runtuhkan panel sisi"}
+            title={collapsed ? "Kembangkan panel" : "Runtuhkan panel"}
+          >
+            {collapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}
+          </button>
           <button className="icon-button sidebar-close" onClick={onClose} aria-label="Tutup menu"><X size={20} /></button>
         </div>
 
-        <button className="new-chat-button" onClick={onNewChat}>
+        <button className="new-chat-button" onClick={onNewChat} aria-label="Perbualan baharu" title={collapsed ? "Perbualan baharu" : undefined}>
           <Plus size={18} />
-          Perbualan baharu
+          <span>Perbualan baharu</span>
         </button>
 
         <div className="sidebar-section history-section">
-          <div className="sidebar-label"><History size={14} /> Sejarah perbualan <span>{sessions.length}</span></div>
+          <div className="sidebar-label">
+            <History size={14} />
+            <span className="sidebar-label-text">Sejarah perbualan</span>
+            <span className="history-count">{sessions.length}</span>
+          </div>
           {sessions.length > 3 && (
             <label className="history-search">
               <Search size={14} />
@@ -329,6 +343,13 @@ export default function App() {
   const [pendingSessionId, setPendingSessionId] = useState(null);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return window.localStorage.getItem("warisan.sidebar-collapsed.v1") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [health, setHealth] = useState(null);
   const [theme, setTheme] = useState(() => resolveTheme());
   const bottomRef = useRef(null);
@@ -343,6 +364,14 @@ export default function App() {
     applyTheme(theme);
     saveTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("warisan.sidebar-collapsed.v1", String(sidebarCollapsed));
+    } catch {
+      // The layout still works when browser storage is unavailable.
+    }
+  }, [sidebarCollapsed]);
 
   useEffect(() => {
     getHealth().then(setHealth).catch(() => setHealth({ status: "degraded" }));
@@ -409,7 +438,9 @@ export default function App() {
     <div className="app-shell">
       <Sidebar
         open={sidebarOpen}
+        collapsed={sidebarCollapsed}
         onClose={() => setSidebarOpen(false)}
+        onToggleCollapse={() => setSidebarCollapsed((current) => !current)}
         onNewChat={startNewConversation}
         sessions={chatState.sessions}
         activeSessionId={chatState.activeSessionId}
@@ -418,7 +449,7 @@ export default function App() {
         health={health}
       />
 
-      <main className="main-panel">
+      <main className={`main-panel ${sidebarCollapsed ? "is-sidebar-collapsed" : ""}`}>
         <header className="topbar">
           <button className="icon-button menu-button" onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu size={21} /></button>
           <div className="mobile-brand"><Brand /></div>
