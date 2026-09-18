@@ -36,14 +36,14 @@ dbp-chatbot   Streamlit UI + BGE-M3 embeddings + BGE reranker + ChromaDB client 
      |
      |  http://llm:8080/v1/   (private network, never published to the LAN)
      v
-dbp-llm       llama.cpp Vulkan server + Gemma 3 4B IT (Q4_K_M GGUF)               (GPU)
+dbp-llm       llama.cpp Vulkan server + Qwen3 8B (Q5_K_M GGUF)                    (GPU)
 ```
 
 - Only the Streamlit port is published to the host. The LLM API is deliberately unreachable from outside Docker.
 - Retrieval and reranking run on **CPU**; only text generation uses the GPU.
 - Knowledge base: `dbp_khidmatnasihat_clean_atomic`, **33,320 documents**, in `data/chroma_db/`.
 - Everything runs locally. Nothing is sent to any cloud service. The only outbound traffic is a
-  one-time model download on first run (Gemma GGUF + BGE weights), afterwards cached in Docker volumes.
+  one-time model download on first run (Qwen3 GGUF + BGE weights), afterwards cached in Docker volumes.
 
 ---
 
@@ -54,7 +54,7 @@ dbp-llm       llama.cpp Vulkan server + Gemma 3 4B IT (Q4_K_M GGUF)             
 | OS | Ubuntu x86_64 (headless server or desktop both work) |
 | GPU | AMD Radeon with `amdgpu` driver active — `/dev/dri` and `/dev/kfd` must exist |
 | Docker | Docker Engine + `docker compose` plugin |
-| Disk | ~10 GB free (3 GB image + build cache + ~2.5 GB model) |
+| Disk | ~14 GB free (3 GB image + build cache + ~5.9 GB model) |
 | Network | Access to Docker Hub, ghcr.io and huggingface.co for the first run |
 
 You do **not** need to be in the host `render`/`video` groups. The Compose file grants
@@ -214,7 +214,7 @@ this project:
 ./deploy.sh stop          # equivalent to: docker compose -p dbp-chatbot down
 ```
 
-Avoid `down -v` unless you intend to delete the cached Gemma model.
+Avoid `down -v` unless you intend to delete the cached Qwen3 model.
 
 ---
 

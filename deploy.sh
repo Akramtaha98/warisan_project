@@ -52,9 +52,13 @@ preflight() {
   done
   ok "Deployment folder looks complete"
 
-  df -BG --output=avail . 2>/dev/null | tail -1 | grep -qE '^ *[1-9][0-9]{1,}G' \
-    && ok "Disk space looks sufficient" \
-    || warn "Less than 10 GB free. The build needs roughly 8 GB (image ~3 GB + build cache)."
+  local available_gb
+  available_gb="$(df -BG --output=avail . 2>/dev/null | tail -1 | tr -dc '0-9')"
+  if [ "${available_gb:-0}" -ge 14 ]; then
+    ok "Disk space looks sufficient"
+  else
+    warn "Less than 14 GB free. The build, Qwen3 model and caches may not fit."
+  fi
 }
 
 # ------------------------------------------------------- machine-specific env --
@@ -96,15 +100,24 @@ CHROMA_COLLECTION_NAME=${COLLECTION}
 # The LMSTUDIO_* names are kept only for compatibility with the existing app
 # code - there is no LM Studio in this architecture.
 LMSTUDIO_BASE_URL=http://llm:8080/v1/
-LMSTUDIO_MODEL=google/gemma-3-4b
-LMSTUDIO_TIMEOUT_S=60
+LMSTUDIO_MODEL=Qwen/Qwen3-8B
+LMSTUDIO_TIMEOUT_S=120
 
 # Retrieval/reranking stay on CPU. Only the LLM uses the GPU.
 RAG_DEVICE=cpu
 RAG_USE_FP16=false
 
+# Retrieval policy (override only after measuring an evaluation set).
+RAG_K_SMALL=15
+RAG_K_LARGE=40
+RAG_FINAL_N=6
+RAG_MIN_KEEP_SCORE=0.8
+RAG_EXPAND_SCORE=1.5
+RAG_HYDE_SCORE=1.0
+RAG_ANSWER_SCORE=0.8
+
 # GGUF model pulled by llama.cpp on first start.
-LLAMA_HF_REPO=lmstudio-community/gemma-3-4b-it-GGUF:Q4_K_M
+LLAMA_HF_REPO=Qwen/Qwen3-8B-GGUF:Q5_K_M
 
 # Streamlit port published to the host.
 CHATBOT_HOST_PORT=${port}
@@ -132,7 +145,7 @@ main() {
 
   step "Starting the LLM container"
   dc up -d llm
-  echo "  Waiting for the model to load (first run downloads ~2.5 GB of GGUF)..."
+  echo "  Waiting for the model to load (first run downloads ~5.9 GB of GGUF)..."
   local waited=0
   until docker run --rm --network "${PROJECT}_dbp-internal" curlimages/curl:latest \
           -fsS http://llm:8080/v1/models >/dev/null 2>&1; do

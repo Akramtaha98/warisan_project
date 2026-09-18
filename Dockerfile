@@ -11,7 +11,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl git build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# CPU-only PyTorch. Gemma runs on the Radeon 8060S via the llama.cpp Vulkan container,
+# CPU-only PyTorch. Qwen3 runs on the Radeon 8060S via the llama.cpp Vulkan container,
 # so this image never needs a GPU build of torch. torch is pinned HERE and deliberately
 # left out of requirements.txt: when both pinned it, requirements.txt upgraded torch to
 # 2.8.0 while torchvision/torchaudio stayed on the 2.3.1 ABI, which broke every

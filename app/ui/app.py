@@ -44,7 +44,7 @@ FEEDBACK_FIELDS = [
 
 
 SYSTEM_INFO = {
-    "Model Bahasa": "Gemma 3 4B",
+    "Model Bahasa": "Qwen3 8B (Q5_K_M)",
     "Embedding": "BGE-M3",
     "Reranker": "BGE-Reranker-v2-m3",
     "Vector DB": "ChromaDB",
@@ -617,7 +617,7 @@ def generate_answer(prompt: str) -> None:
         try:
             result = answer_question(prompt)
             answer = result.get("answer", "")
-            debug = {
+            debug = result.get("debug", {}) or {
                 "top_score": result.get("top_score"),
                 "used_hyde": result.get("used_hyde"),
                 "expanded": result.get("expanded"),
@@ -625,8 +625,8 @@ def generate_answer(prompt: str) -> None:
             contexts = result.get("retrieved_contexts") or []
         except Exception as exc:
             st.error(
-                "Tidak dapat berhubung dengan LM Studio atau model belum dimuatkan. "
-                "Sila pastikan LM Studio sedang berjalan dan model telah dipilih."
+                "Sistem jawapan atau pangkalan data tidak dapat digunakan. "
+                "Sila semak bahawa perkhidmatan Qwen3 dan ChromaDB telah dimuatkan."
             )
             answer = "Maaf, terdapat ralat semasa menjana jawapan. Sila cuba lagi."
             debug = {
