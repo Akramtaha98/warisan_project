@@ -92,3 +92,4 @@ After changing any pinned version:
 ```bash
 docker exec dbp-chatbot pip check   # must report: No broken requirements found
 ```
+# warisan_project
