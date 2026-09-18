@@ -1,29 +1,34 @@
-# Gates: fixed composer, themes, and responsive layouts
+# Gates: 100-QA Malay evaluation and adaptive Qwen3 reasoning
 
-OWNS: frontend/**, GATES.md
+OWNS: app/sample_data/**, api/**, frontend/**, README.md, GATES.md
 
-Scope: keep the question composer visible without page scrolling, add a persistent accessible light/dark theme, and deliver polished desktop, tablet, and mobile layouts
+Scope: provide exactly 100 structured Malay QA examples, ground Qwen3 answers in retrieved examples, use deeper reasoning for hard questions, and verify the real deployed Qwen3 path
 
 - [x] G0: this completion ledger states outcome-focused checks that can fail
   CHECK: node /Users/akramtaha/.agents/skills/unlazy/scripts/gate-lint.mjs GATES.md
   EXPECT: LINT OK
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=bae1e0311ed6/26 entries; EXPECT=matched; output-sha256=54ffa428490a436ff6f51299fab7f49f5c5bf1843fe7f0866e40f8a4e4739ed3; output-bytes=386
+  EVIDENCE: gate-lint returned `LINT OK (5 warning(s))`; warnings are the expected manual-evidence gates and numeric dataset requirements.
 
-- [x] G1: theme preference resolves, saves, restores, and applies safely
-  CHECK: node --test frontend/tests/theme.test.js && printf 'theme-preference-verified\n'
-  EXPECT: theme-preference-verified
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=bae1e0311ed6/26 entries; EXPECT=matched; output-sha256=ed7fa3b3bec4299851670186e12695693e278cdb4fa380de33f8de6a1d8281b8; output-bytes=801
+- [x] G1: the Malay evaluation fixture contains exactly 100 unique complete QA records with broad categories and hard examples
+  CHECK: node --test api/tests/retrieval.test.js && printf 'qa-dataset-verified\n'
+  EXPECT: qa-dataset-verified
+  EVIDENCE: retrieval fixture test passed with exactly 100 unique records, 38 categories, and 15 hard examples.
 
-- [x] G2: the complete frontend regression suite passes and the production bundle builds
-  CHECK: npm --prefix frontend run verify && printf 'responsive-theme-build-verified\n'
-  EXPECT: responsive-theme-build-verified
-  EVIDENCE: exit=0; shell=/bin/sh; cwd=/Users/akramtaha/Work/Project/Warisan/warisan_project; path=bae1e0311ed6/26 entries; EXPECT=matched; output-sha256=f36dafa702b7693bb1a1c2e1a139998bcf6abb896a7325ec1b085092139d2721; output-bytes=2919
+- [x] G2: adaptive routing selects deep reasoning and larger context for hard questions while keeping direct questions concise
+  CHECK: node --test api/tests/chat.test.js && printf 'adaptive-qwen-reasoning-verified\n'
+  EXPECT: adaptive-qwen-reasoning-verified
+  EVIDENCE: all 11 API tests passed, including `/think`, native medium reasoning, six references, empty-answer retry, and `/no_think` direct routing.
 
-- [x] G3: the composer remains visible in the initial viewport on desktop, tablet, and mobile while the welcome area scrolls independently when necessary
-  EVIDENCE: 2026-09-18 — browser measurements at 1440x900, 820x1180, 390x844, and 360x640 showed body scroll height equal to viewport height and composer bottom equal to viewport height; compact welcome content scrolled only inside the conversation region
+- [x] G3: the complete project regression suite and production build pass
+  CHECK: npm run verify && printf 'qwen-evaluation-build-verified\n'
+  EXPECT: qwen-evaluation-build-verified
+  EVIDENCE: `./smoke-test.sh` passed: 13 frontend tests, 11 serverless API tests, 22 Python tests, 3 deployment checks, and a production Vite build.
 
-- [x] G4: light and dark modes are visually legible, switch accessibly, and persist after reload on the deployed website
-  EVIDENCE: 2026-09-18 — visually reviewed desktop and mobile in both themes; verified accessible Gunakan mod gelap/cerah control and confirmed the selected light theme remained active after reloading production
+- [ ] G4: the deployed API returns a grounded answer from the real Qwen3 provider and reports thinking mode for a hard Malay question
+  EVIDENCE: real direct case passed on `qwen/qwen3.8-27b:free` with score 87 and four sources. The hard case correctly reached the deployed `/think` route but OpenRouter returned HTTP 429; its live catalogue exposes no other active free Qwen model on 2026-09-19, so this gate remains honestly unmet until the free quota/capacity resets or another authorized provider is configured.
 
-- [x] G5: the production homepage and health endpoint respond successfully after deployment
-  EVIDENCE: 2026-09-18 — latest deployment dpl_A42CKK9Z7tzqcAEoCQq3zWvpdgak reached READY; production homepage returned HTTP 200 and /api/health returned status=ready, database_ready=true, model_ready=true
+- [x] G5: the live interface reports the 100-record evaluation dataset and remains usable on desktop and mobile
+  EVIDENCE: visual production checks at desktop and 390x844 mobile showed `100 QA Bahasa Melayu sintetik`, ready status, visible suggestion cards, and the composer without horizontal overflow.
+
+- [ ] G6: the verified implementation is deployed to Vercel and synchronized to GitHub main
+  EVIDENCE: Vercel deployment `dpl_FfPCei7eRBMDrpUp3k2yPS2RSVab` is live; GitHub push is pending.

@@ -39,7 +39,36 @@ test("Qwen3 answers from retrieved context and judges answer quality", async () 
     language: 93,
   });
   assert.equal(result.question_type, "follow_up");
+  assert.equal(result.thinking_mode, "direct");
+  assert.equal(result.reasoning_depth, "standard");
+  assert.match(calls[0].messages[0].content, /\/no_think/);
   assert.ok(result.sources.length > 0);
+});
+
+test("hard multi-rule questions use Qwen3 thinking mode and six references", async () => {
+  const calls = [];
+  const fetcher = async (_url, options) => {
+    const body = JSON.parse(options.body);
+    calls.push(body);
+    return calls.length === 1
+      ? response("Ayat yang betul ialah 'Para pelajar diminta mengulang kaji nota mereka supaya lulus.'")
+      : response('{"overall":94,"grounding":96,"relevance":95,"completeness":92,"language":93,"note":"Semua pembetulan disokong rujukan."}');
+  };
+
+  const result = await createChatResponse(
+    { question: "Betulkan dan jelaskan kesalahan dalam ayat 'Para pelajar-pelajar di minta untuk mengulangkaji nota-nota mereka supaya agar lulus'." },
+    { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } },
+  );
+
+  assert.equal(calls[0].max_tokens, 1000);
+  assert.deepEqual(calls[0].reasoning, { effort: "medium", exclude: true });
+  assert.match(calls[0].messages[0].content, /\/think/);
+  assert.match(calls[0].messages[0].content, /penaakulan lebih teliti/i);
+  assert.equal(result.thinking_mode, "thinking");
+  assert.equal(result.reasoning_depth, "deep");
+  assert.equal(result.question_type, "correction");
+  assert.equal(result.context_count, 6);
+  assert.equal(result.sources.length, 6);
 });
 
 test("judge values are clamped and missing credentials fail safely", async () => {
@@ -78,7 +107,28 @@ test("OpenRouter uses the free Qwen3 model when its key is configured", async ()
   assert.equal(result.model, DEFAULT_FREE_MODEL);
   assert.equal(calls[0].url, "https://openrouter.ai/api/v1/chat/completions");
   assert.equal(calls[0].body.model, DEFAULT_FREE_MODEL);
+  assert.equal(calls[0].body.reasoning, undefined);
   assert.equal(calls[0].options.headers.Authorization, "Bearer free-test-key");
+});
+
+test("empty thinking responses are retried before returning the final answer", async () => {
+  let calls = 0;
+  const fetcher = async (_url, options) => {
+    calls += 1;
+    const body = JSON.parse(options.body);
+    if (calls === 1) return response("");
+    if (body.max_tokens > 300) return response("Ayat itu dibetulkan selepas semakan teliti.");
+    return response('{"overall":86,"grounding":88,"relevance":87,"completeness":83,"language":90}');
+  };
+
+  const result = await createChatResponse(
+    { question: "Betulkan dan jelaskan semua kesalahan dalam ayat ini supaya lebih tepat." },
+    { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } },
+  );
+
+  assert.equal(calls, 3);
+  assert.equal(result.answer, "Ayat itu dibetulkan selepas semakan teliti.");
+  assert.equal(result.thinking_mode, "thinking");
 });
 
 test("temporary provider limits are retried before succeeding", async () => {

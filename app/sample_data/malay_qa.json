@@ -1,9 +1,9 @@
 {
   "name": "Malay QA Sample for Warisan",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "language": "ms",
   "license": "CC0-1.0",
-  "description": "Data sintetik untuk ujian pembangunan dan bukan pengganti sumber rasmi DBP.",
+  "description": "100 pasangan soalan-jawapan sintetik yang disemak untuk ujian pembangunan dan penilaian; bukan pengganti sumber rasmi DBP.",
   "records": [
     {
       "id": "qa-ms-001",
@@ -148,6 +148,477 @@
       "category": "ayat",
       "question": "Apakah ciri asas ayat lengkap?",
       "answer": "Ayat lengkap lazimnya mengandungi subjek dan predikat serta menyampaikan maksud yang sempurna. Dalam ayat 'Murid itu rajin', 'Murid itu' ialah subjek dan 'rajin' ialah predikat."
+    },
+    {
+      "id": "qa-ms-025",
+      "category": "kata_sendi",
+      "question": "Apakah perbezaan antara 'pada' dengan 'kepada'?",
+      "answer": "'Pada' lazimnya digunakan untuk masa, tempat bagi sesuatu perbuatan atau sandaran umum, seperti 'pada pukul tiga' dan 'bergantung pada keputusan'. 'Kepada' pula menunjukkan sasaran yang merujuk manusia, haiwan atau unsur abstrak tertentu, seperti 'surat kepada pengetua'."
+    },
+    {
+      "id": "qa-ms-026",
+      "category": "kata_sendi",
+      "question": "Bilakah 'di dalam' digunakan berbanding dengan 'dalam'?",
+      "answer": "'Di dalam' digunakan apabila 'dalam' membawa maksud ruang atau tempat fizikal, seperti 'di dalam kotak'. 'Dalam' tanpa 'di' digunakan untuk lingkungan yang tidak bersifat tempat fizikal, seperti 'dalam bidang pendidikan' dan 'dalam mesyuarat'."
+    },
+    {
+      "id": "qa-ms-027",
+      "category": "huruf_besar",
+      "question": "Adakah nama hari dan bulan ditulis dengan huruf besar?",
+      "answer": "Ya. Nama hari dan bulan ialah nama khas dan ditulis dengan huruf besar, seperti 'Isnin', 'Jumaat', 'Januari' dan 'Ogos'."
+    },
+    {
+      "id": "qa-ms-028",
+      "category": "huruf_besar",
+      "question": "Bagaimanakah huruf besar digunakan pada jawatan?",
+      "answer": "Nama jawatan ditulis dengan huruf besar apabila diikuti nama khas atau digunakan sebagai gelaran khusus, seperti 'Menteri Pendidikan Malaysia'. Dalam penggunaan umum, huruf kecil digunakan, seperti 'beliau dilantik sebagai menteri'."
+    },
+    {
+      "id": "qa-ms-029",
+      "category": "ejaan",
+      "question": "Bagaimanakah kata pinjaman yang belum diserap ditulis dalam teks Melayu?",
+      "answer": "Kata atau ungkapan asing yang belum diserap lazimnya dicetak condong jika kemudahan tipografi tersedia. Jika kata itu sudah mempunyai padanan Melayu yang sesuai, padanan Melayu hendaklah diutamakan."
+    },
+    {
+      "id": "qa-ms-030",
+      "category": "singkatan",
+      "question": "Bagaimanakah singkatan nama organisasi ditulis?",
+      "answer": "Singkatan yang dibentuk daripada huruf awal nama organisasi lazimnya ditulis dengan huruf besar tanpa noktah, seperti 'DBP', 'KPM' dan 'UKM'. Nama penuh sebaik-baiknya diberikan pada penyebutan pertama."
+    },
+    {
+      "id": "qa-ms-031",
+      "category": "kata_majmuk",
+      "question": "Adakah 'alat tulis' ditulis rapat atau terpisah?",
+      "answer": "'Alat tulis' ialah kata majmuk yang ditulis terpisah. Contoh ayat: 'Kedai itu menjual alat tulis'."
+    },
+    {
+      "id": "qa-ms-032",
+      "category": "kata_majmuk",
+      "question": "Adakah 'urus setia' ditulis sebagai dua perkataan?",
+      "answer": "Ya. 'Urus setia' ditulis terpisah apabila merujuk unit atau pihak yang mengendalikan urusan pentadbiran sesuatu program. Kata terbitannya ialah 'mengurussetiakan'."
+    },
+    {
+      "id": "qa-ms-033",
+      "category": "kata_majmuk",
+      "question": "Mengapakah 'setiausaha' ditulis serangkai?",
+      "answer": "'Setiausaha' ialah kata majmuk mantap yang dieja sebagai satu perkataan. Bentuk terbitannya juga dirapatkan, seperti 'kesetiausahaan'."
+    },
+    {
+      "id": "qa-ms-034",
+      "category": "kata_majmuk",
+      "question": "Bagaimanakah kata majmuk ditulis apabila menerima apitan?",
+      "answer": "Kata majmuk yang menerima apitan lazimnya ditulis serangkai, seperti 'menandatangani' daripada 'tanda tangan' dan 'menguatkuasakan' daripada 'kuat kuasa'. Jika hanya menerima awalan atau akhiran, bentuk dasarnya biasanya kekal terpisah, seperti 'berkuat kuasa'."
+    },
+    {
+      "id": "qa-ms-035",
+      "category": "imbuhan",
+      "question": "Apakah fungsi awalan 'peN-'?",
+      "answer": "Awalan 'peN-' membentuk kata nama yang antara lain merujuk pelaku, alat atau sesuatu yang berkaitan dengan perbuatan. Contohnya ialah 'penulis', 'pembaca', 'penggali' dan 'penyapu'."
+    },
+    {
+      "id": "qa-ms-036",
+      "category": "imbuhan",
+      "question": "Apakah fungsi apitan 'ke-...-an'?",
+      "answer": "Apitan 'ke-...-an' membentuk kata nama abstrak atau kata yang menyatakan keadaan, seperti 'kebaikan', 'kesihatan' dan 'kedinginan'. Dalam konteks tertentu, apitan ini juga dapat membawa makna terkena sesuatu, seperti 'kehujanan'."
+    },
+    {
+      "id": "qa-ms-037",
+      "category": "imbuhan",
+      "question": "Apakah perbezaan umum antara akhiran '-kan' dengan '-i'?",
+      "answer": "Akhiran '-kan' sering menandai maksud menyebabkan, menjadikan atau melakukan sesuatu untuk pihak lain, manakala '-i' sering menandai tempat, penerima atau perbuatan berulang pada sasaran. Penggunaannya bergantung pada kata kerja dan konteks, seperti 'mengisikan air ke dalam botol' dan 'mengisi botol dengan air'."
+    },
+    {
+      "id": "qa-ms-038",
+      "category": "imbuhan",
+      "question": "Bagaimanakah kata dasar satu suku kata menerima awalan 'meN-'?",
+      "answer": "Banyak kata dasar satu suku kata menerima bentuk 'menge-', seperti 'mengecat', 'mengebom' dan 'mengepos'. Walau bagaimanapun, bentuk yang telah mantap hendaklah dirujuk mengikut ejaan baku."
+    },
+    {
+      "id": "qa-ms-039",
+      "category": "kata_ganda",
+      "question": "Apakah kata ganda separa?",
+      "answer": "Kata ganda separa menggandakan sebahagian kata dasar dan biasanya melibatkan perubahan bunyi, seperti 'lelaki', 'dedaun' dan 'tetamu'. Bentuknya tidak menggunakan tanda sempang."
+    },
+    {
+      "id": "qa-ms-040",
+      "category": "kata_ganda",
+      "question": "Bagaimanakah kata ganda berentak ditulis?",
+      "answer": "Kata ganda berentak ditulis dengan tanda sempang, seperti 'kuih-muih', 'sayur-mayur' dan 'lauk-pauk'. Penggandaan ini melibatkan persamaan atau variasi bunyi."
+    },
+    {
+      "id": "qa-ms-041",
+      "category": "kata_bilangan",
+      "question": "Adakah frasa 'para pelajar-pelajar' betul?",
+      "answer": "Tidak. 'Para' sudah membawa makna jamak, maka kata nama selepasnya tidak perlu digandakan. Bentuk yang betul ialah 'para pelajar' atau 'pelajar-pelajar'."
+    },
+    {
+      "id": "qa-ms-042",
+      "category": "kata_bilangan",
+      "question": "Apakah perbezaan antara 'setengah' dengan 'separuh'?",
+      "answer": "'Setengah' berfungsi sebagai kata bilangan pecahan sebelum kata nama, seperti 'setengah kilogram'. 'Separuh' bermaksud satu daripada dua bahagian yang sama dan boleh digunakan dengan lebih bebas, seperti 'separuh daripada kek itu'."
+    },
+    {
+      "id": "qa-ms-043",
+      "category": "penjodoh_bilangan",
+      "question": "Apakah penjodoh bilangan untuk manusia?",
+      "answer": "Penjodoh bilangan yang umum untuk manusia ialah 'orang', seperti 'dua orang guru'. Untuk kelompok tertentu, kata seperti 'pasukan' atau 'rombongan' boleh digunakan mengikut konteks."
+    },
+    {
+      "id": "qa-ms-044",
+      "category": "penjodoh_bilangan",
+      "question": "Apakah penjodoh bilangan untuk kertas dan kain?",
+      "answer": "Penjodoh bilangan 'helai' lazim digunakan untuk benda yang nipis dan lebar, seperti 'sehelai kertas', 'dua helai kain' dan 'sehelai daun'."
+    },
+    {
+      "id": "qa-ms-045",
+      "category": "penjodoh_bilangan",
+      "question": "Bilakah penjodoh bilangan 'batang' digunakan?",
+      "answer": "'Batang' digunakan untuk benda yang panjang atau berbentuk seperti batang, contohnya 'sebatang pensel', 'dua batang pokok' dan 'tiga batang jalan'."
+    },
+    {
+      "id": "qa-ms-046",
+      "category": "kata_ganti",
+      "question": "Apakah perbezaan antara 'kami' dengan 'kita'?",
+      "answer": "'Kami' merujuk penutur dan pihak lain tetapi tidak termasuk pendengar. 'Kita' merujuk penutur serta pendengar. Contohnya, guru berkata kepada murid, 'Kita akan belajar bersama,' tetapi boleh berkata, 'Kami para guru telah bermesyuarat'."
+    },
+    {
+      "id": "qa-ms-047",
+      "category": "kata_ganti",
+      "question": "Bilakah kata ganti 'beliau' sesuai digunakan?",
+      "answer": "'Beliau' digunakan sebagai kata ganti nama diri ketiga yang sopan untuk orang yang dihormati. Kata ini tidak digunakan untuk benda atau haiwan."
+    },
+    {
+      "id": "qa-ms-048",
+      "category": "kata_ganti",
+      "question": "Apakah fungsi kata tunjuk 'ini' dan 'itu'?",
+      "answer": "'Ini' menunjukkan sesuatu yang dekat dengan penutur, manakala 'itu' menunjukkan sesuatu yang lebih jauh atau telah disebut. Contohnya, 'Buku ini milik saya' dan 'Rumah itu sangat besar'."
+    },
+    {
+      "id": "qa-ms-049",
+      "category": "kata_kerja",
+      "question": "Apakah kata kerja transitif?",
+      "answer": "Kata kerja transitif memerlukan objek untuk melengkapkan maksudnya. Dalam ayat 'Siti membaca novel', 'membaca' ialah kata kerja transitif dan 'novel' ialah objek."
+    },
+    {
+      "id": "qa-ms-050",
+      "category": "kata_kerja",
+      "question": "Apakah kata kerja tak transitif?",
+      "answer": "Kata kerja tak transitif tidak memerlukan objek. Contohnya, 'Adik tidur' dan 'Mereka berbincang di bilik mesyuarat'. Sesetengahnya boleh diikuti pelengkap atau keterangan."
+    },
+    {
+      "id": "qa-ms-051",
+      "category": "kata_adjektif",
+      "question": "Bagaimanakah kata penguat digunakan dengan kata adjektif?",
+      "answer": "Kata penguat boleh hadir sebelum, selepas atau bebas di sekitar kata adjektif. Contohnya ialah 'terlalu tinggi', 'cantik sekali' dan 'sangat baik'. Elakkan penggandaan penguat yang tidak perlu dalam bahasa formal."
+    },
+    {
+      "id": "qa-ms-052",
+      "category": "kata_adjektif",
+      "question": "Adakah frasa 'paling tercantik' betul?",
+      "answer": "Dalam penggunaan baku biasa, 'paling tercantik' dianggap lewah kerana 'paling' dan awalan 'ter-' sama-sama membawa makna darjah tertinggi. Gunakan sama ada 'paling cantik' atau 'tercantik'."
+    },
+    {
+      "id": "qa-ms-053",
+      "category": "kata_hubung",
+      "question": "Apakah perbezaan antara 'tetapi' dengan 'manakala'?",
+      "answer": "'Tetapi' menandai pertentangan antara dua hal. 'Manakala' lazimnya menghubungkan dua perkara yang dibandingkan atau berlaku pada keadaan yang berbeza, seperti 'Ali memilih teh, manakala Abu memilih kopi'."
+    },
+    {
+      "id": "qa-ms-054",
+      "category": "kata_hubung",
+      "question": "Bagaimanakah 'walaupun' digunakan dalam ayat?",
+      "answer": "'Walaupun' memperkenalkan klausa yang menunjukkan keadaan berlawanan dengan hasil yang berlaku. Contohnya, 'Walaupun hujan lebat, mereka meneruskan perjalanan'."
+    },
+    {
+      "id": "qa-ms-055",
+      "category": "kata_hubung",
+      "question": "Adakah 'oleh kerana' sesuai digunakan untuk menyatakan sebab?",
+      "answer": "Untuk menyatakan sebab, gunakan 'oleh sebab' atau 'kerana'. Contohnya, 'Perlawanan ditangguhkan oleh sebab hujan lebat' atau 'Perlawanan ditangguhkan kerana hujan lebat'."
+    },
+    {
+      "id": "qa-ms-056",
+      "category": "kata_hubung",
+      "question": "Apakah fungsi 'agar' dan 'supaya'?",
+      "answer": "'Agar' dan 'supaya' ialah kata hubung yang menyatakan tujuan atau harapan. Contohnya, 'Simpan dokumen itu agar mudah dirujuk' dan 'Berusahalah supaya berjaya'."
+    },
+    {
+      "id": "qa-ms-057",
+      "category": "ayat_pasif",
+      "question": "Bagaimanakah ayat pasif dengan kata ganti nama pertama dibentuk?",
+      "answer": "Bagi pelaku kata ganti nama pertama, gunakan susunan objek diikuti pelaku dan kata kerja dasar, seperti 'Buku itu saya baca'. Bentuk 'Buku itu dibaca oleh saya' gramatis dalam konteks tertentu tetapi susunan pasif kata ganti nama lebih lazim dan ringkas."
+    },
+    {
+      "id": "qa-ms-058",
+      "category": "ayat_pasif",
+      "question": "Bagaimanakah ayat pasif dengan pelaku orang ketiga dibentuk?",
+      "answer": "Bagi pelaku orang ketiga, kata kerja pasif berawalan 'di-' lazim digunakan, dan pelaku boleh didahului 'oleh'. Contohnya, 'Surat itu ditulis oleh Farid'."
+    },
+    {
+      "id": "qa-ms-059",
+      "category": "ayat",
+      "question": "Apakah ayat songsang?",
+      "answer": "Ayat songsang mendahulukan seluruh atau sebahagian predikat sebelum subjek. Ayat biasa 'Pemandangan itu sungguh indah' boleh disongsangkan menjadi 'Sungguh indah pemandangan itu'."
+    },
+    {
+      "id": "qa-ms-060",
+      "category": "ayat",
+      "question": "Apakah ayat majmuk gabungan?",
+      "answer": "Ayat majmuk gabungan terdiri daripada dua atau lebih ayat yang digabungkan dengan kata hubung seperti 'dan', 'atau' atau 'tetapi'. Contohnya, 'Amin membaca buku dan adiknya menonton televisyen'."
+    },
+    {
+      "id": "qa-ms-061",
+      "category": "ayat",
+      "question": "Apakah subjek dan predikat dalam ayat 'Pelajar baharu itu sangat rajin'?",
+      "answer": "Subjeknya ialah 'Pelajar baharu itu', manakala predikatnya ialah 'sangat rajin'. Predikat tersebut ialah frasa adjektif."
+    },
+    {
+      "id": "qa-ms-062",
+      "category": "pembetulan",
+      "question": "Bagaimanakah ayat 'Mereka saling bantu-membantu antara satu sama lain' dibetulkan?",
+      "answer": "Ayat itu mengandungi unsur lewah. Gunakan salah satu bentuk: 'Mereka saling membantu', 'Mereka bantu-membantu' atau 'Mereka membantu antara satu sama lain'."
+    },
+    {
+      "id": "qa-ms-063",
+      "category": "pembetulan",
+      "question": "Bagaimanakah penggunaan 'di mana' dalam ayat 'Program itu diadakan di dewan di mana ramai peserta hadir' dibetulkan?",
+      "answer": "'Di mana' digunakan untuk pertanyaan tentang tempat, bukan sebagai kata hubung umum. Ayat itu boleh dibetulkan menjadi 'Program yang dihadiri oleh ramai peserta itu diadakan di dewan'."
+    },
+    {
+      "id": "qa-ms-064",
+      "category": "pembetulan",
+      "question": "Adakah frasa 'adalah merupakan' betul?",
+      "answer": "Frasa 'adalah merupakan' lewah kerana kedua-duanya menjalankan fungsi penghubung yang bertindih. Gunakan salah satu, contohnya 'Bangunan itu merupakan pusat latihan' atau 'Matlamat utama adalah untuk meningkatkan mutu'."
+    },
+    {
+      "id": "qa-ms-065",
+      "category": "tanda_baca",
+      "question": "Bilakah tanda koma digunakan pada kata sapaan?",
+      "answer": "Tanda koma memisahkan kata sapaan daripada bahagian ayat yang lain. Contohnya, 'Aina, sila masuk' dan 'Terima kasih, tuan'."
+    },
+    {
+      "id": "qa-ms-066",
+      "category": "tanda_baca",
+      "question": "Apakah fungsi tanda titik bertindih?",
+      "answer": "Tanda titik bertindih digunakan sebelum senarai, penjelasan atau petikan yang diperkenalkan oleh ayat lengkap. Contohnya, 'Bawa tiga barang: buku, pensel dan pembaris'."
+    },
+    {
+      "id": "qa-ms-067",
+      "category": "tanda_baca",
+      "question": "Bilakah tanda koma bertitik digunakan?",
+      "answer": "Tanda koma bertitik memisahkan dua klausa setara yang berkait rapat atau unsur senarai yang sudah mengandungi koma. Contohnya, 'Dia mahu hadir; namun, kesihatannya tidak mengizinkan'."
+    },
+    {
+      "id": "qa-ms-068",
+      "category": "tanda_baca",
+      "question": "Bagaimanakah tanda petik digunakan?",
+      "answer": "Tanda petik mengapit petikan langsung, judul tertentu atau kata yang diberi perhatian khusus. Contohnya, Amin berkata, 'Saya akan datang esok.'"
+    },
+    {
+      "id": "qa-ms-069",
+      "category": "tanda_baca",
+      "question": "Apakah fungsi tanda pisah dalam ayat?",
+      "answer": "Tanda pisah boleh menandai sisipan, penjelasan atau perubahan fikiran yang lebih tegas daripada koma. Penggunaannya perlu terkawal agar struktur ayat kekal jelas."
+    },
+    {
+      "id": "qa-ms-070",
+      "category": "huruf_besar",
+      "question": "Adakah nama mata pelajaran ditulis dengan huruf besar?",
+      "answer": "Nama khusus mata pelajaran ditulis dengan huruf besar, seperti 'Bahasa Melayu' dan 'Matematik'. Sebutan umum seperti 'kelas bahasa' tidak memerlukan huruf besar."
+    },
+    {
+      "id": "qa-ms-071",
+      "category": "singkatan",
+      "question": "Apakah perbezaan antara akronim dengan singkatan huruf awal?",
+      "answer": "Akronim dibentuk daripada huruf atau suku kata dan disebut sebagai satu kata, seperti 'Bernama'. Singkatan huruf awal disebut huruf demi huruf, seperti 'DBP' dan 'KPM'."
+    },
+    {
+      "id": "qa-ms-072",
+      "category": "format",
+      "question": "Bagaimanakah tarikh ditulis dalam ayat rasmi?",
+      "answer": "Tarikh boleh ditulis dengan angka hari, diikuti nama bulan dan tahun, seperti '18 September 2026'. Nama bulan ditulis dengan huruf awal besar dan tidak perlu disingkatkan dalam teks rasmi jika ruang mencukupi."
+    },
+    {
+      "id": "qa-ms-073",
+      "category": "format",
+      "question": "Bagaimanakah nombor kecil ditulis dalam teks umum?",
+      "answer": "Dalam teks umum, nombor kecil sering ditulis dengan perkataan, terutama pada awal ayat. Walau bagaimanapun, angka sesuai digunakan untuk ukuran, data, jadual dan konteks teknikal. Konsistensi gaya hendaklah dijaga."
+    },
+    {
+      "id": "qa-ms-074",
+      "category": "penanda_wacana",
+      "question": "Apakah fungsi penanda wacana 'oleh itu'?",
+      "answer": "'Oleh itu' memperkenalkan kesimpulan atau akibat daripada pernyataan sebelumnya. Contohnya, 'Hujan turun dengan lebat. Oleh itu, perlawanan ditangguhkan'."
+    },
+    {
+      "id": "qa-ms-075",
+      "category": "penanda_wacana",
+      "question": "Bagaimanakah 'sebaliknya' digunakan?",
+      "answer": "'Sebaliknya' memperkenalkan keadaan yang berlawanan atau pilihan yang bertentangan dengan pernyataan sebelumnya. Contohnya, 'Kakaknya pendiam. Sebaliknya, adiknya sangat peramah'."
+    },
+    {
+      "id": "qa-ms-076",
+      "category": "penanda_wacana",
+      "question": "Apakah fungsi 'selain itu' dalam perenggan?",
+      "answer": "'Selain itu' menambahkan maklumat atau hujah baharu yang berkaitan dengan idea sebelumnya. Penanda ini membantu menyusun perenggan secara koheren."
+    },
+    {
+      "id": "qa-ms-077",
+      "category": "bahasa_baku",
+      "question": "Adakah 'ianya' bentuk baku?",
+      "answer": "Dalam bahasa Melayu baku, gunakan 'ia' atau 'dia' sebagai kata ganti nama. Bentuk 'ianya' lazimnya dielakkan kerana menggabungkan dua bentuk kata ganti. Susun semula ayat jika akhiran '-nya' diperlukan untuk fungsi lain."
+    },
+    {
+      "id": "qa-ms-078",
+      "category": "bahasa_baku",
+      "question": "Yang manakah betul, 'merbahaya' atau 'berbahaya'?",
+      "answer": "Bentuk baku ialah 'berbahaya', yang terbentuk daripada awalan 'ber-' dan kata dasar 'bahaya'. Contohnya, 'Jalan itu berbahaya ketika hujan'."
+    },
+    {
+      "id": "qa-ms-079",
+      "category": "bahasa_baku",
+      "question": "Apakah bentuk baku untuk memperbaharui sesuatu lesen?",
+      "answer": "Gunakan 'memperbaharui' apabila bermaksud menjadikan baharu atau melanjutkan tempoh, seperti 'memperbaharui lesen'. Kata namanya ialah 'pembaharuan'."
+    },
+    {
+      "id": "qa-ms-080",
+      "category": "istilah",
+      "question": "Apakah padanan Melayu bagi 'download'?",
+      "answer": "Padanan bahasa Melayu bagi 'download' ialah 'muat turun'. Sebagai kata kerja, gunakan bentuk seperti 'memuat turun fail'."
+    },
+    {
+      "id": "qa-ms-081",
+      "category": "istilah",
+      "question": "Apakah padanan Melayu bagi 'online'?",
+      "answer": "Padanan umum bagi 'online' ialah 'dalam talian'. Contohnya, 'Mesyuarat itu diadakan secara dalam talian'."
+    },
+    {
+      "id": "qa-ms-082",
+      "category": "istilah",
+      "question": "Bagaimanakah 'e-mel' ditulis dalam bahasa Melayu?",
+      "answer": "Bentuk yang digunakan ialah 'e-mel', dengan huruf kecil dan tanda sempang. Contohnya, 'Sila hantar dokumen itu melalui e-mel'."
+    },
+    {
+      "id": "qa-ms-083",
+      "category": "peribahasa",
+      "question": "Apakah maksud 'bagai aur dengan tebing'?",
+      "answer": "Peribahasa 'bagai aur dengan tebing' bermaksud hidup saling membantu dan bekerjasama. Aur dan tebing digambarkan saling menyokong antara satu sama lain."
+    },
+    {
+      "id": "qa-ms-084",
+      "category": "peribahasa",
+      "question": "Apakah maksud 'bagai menatang minyak yang penuh'?",
+      "answer": "Peribahasa ini bermaksud menjaga atau memelihara seseorang dengan penuh kasih sayang dan sangat berhati-hati."
+    },
+    {
+      "id": "qa-ms-085",
+      "category": "peribahasa",
+      "question": "Apakah maksud 'sediakan payung sebelum hujan'?",
+      "answer": "Peribahasa ini bermaksud membuat persediaan lebih awal sebelum berlaku kesusahan atau masalah."
+    },
+    {
+      "id": "qa-ms-086",
+      "category": "penaakulan_tatabahasa",
+      "difficulty": "hard",
+      "question": "Bagaimanakah penggunaan 'ialah' dan 'adalah' dibandingkan serta ayat 'Tujuan program ialah untuk meningkatkan kemahiran dan hasilnya adalah sebuah modul' dibetulkan?",
+      "answer": "'Ialah' lazimnya mendahului frasa nama, manakala 'adalah' lazimnya mendahului frasa adjektif atau frasa sendi nama. Sebelum frasa kerja 'untuk meningkatkan', kata pemeri boleh digugurkan: 'Tujuan program ini adalah peningkatan kemahiran' atau lebih alami, 'Program ini bertujuan untuk meningkatkan kemahiran'. Bahagian kedua betul sebagai 'Hasilnya ialah sebuah modul' kerana 'sebuah modul' ialah frasa nama."
+    },
+    {
+      "id": "qa-ms-087",
+      "category": "penaakulan_tatabahasa",
+      "difficulty": "hard",
+      "question": "Bagaimanakah penggunaan 'dari' serta 'daripada' dalam ayat 'Dia menerima hadiah dari ibunya daripada pagi tadi' dijelaskan dan dibetulkan?",
+      "answer": "'Daripada' digunakan untuk sumber manusia, jadi 'hadiah daripada ibunya' betul. 'Dari' digunakan untuk waktu, jadi 'dari pagi tadi' betul. Ayat yang diperbaik ialah 'Dia menerima hadiah daripada ibunya pada pagi tadi' jika yang dimaksudkan ialah waktu penerimaan, atau 'Dia menunggu dari pagi tadi' jika tempoh masa hendak dinyatakan."
+    },
+    {
+      "id": "qa-ms-088",
+      "category": "penaakulan_ejaan",
+      "difficulty": "hard",
+      "question": "Bagaimanakah semua kesalahan jarak dalam ayat 'Dokumen itu di hantar kepejabat dan di simpan didalam kabinet' dibetulkan?",
+      "answer": "Ayat yang betul ialah 'Dokumen itu dihantar ke pejabat dan disimpan di dalam kabinet'. 'Dihantar' dan 'disimpan' menggunakan awalan pasif 'di-' lalu dirapatkan. 'Ke pejabat' dan 'di dalam kabinet' menggunakan kata sendi lalu ditulis terpisah."
+    },
+    {
+      "id": "qa-ms-089",
+      "category": "penaakulan_imbuhan",
+      "difficulty": "hard",
+      "question": "Bagaimanakah awalan 'meN-' berubah bagi kata dasar 'sapu', 'tulis', 'pukul' dan 'kaji'?",
+      "answer": "Bentuknya ialah 'menyapu', 'menulis', 'memukul' dan 'mengkaji'. Huruf awal s, t dan p digugurkan apabila menerima bentuk awalan yang sesuai, manakala k dalam 'kaji' juga digugurkan dan bentuk 'meng-' digunakan. Perubahan ini mengikuti proses peluluhan bunyi bagi kata dasar tertentu."
+    },
+    {
+      "id": "qa-ms-090",
+      "category": "penaakulan_ayat_pasif",
+      "difficulty": "hard",
+      "question": "Bagaimanakah 'Saya telah menyiapkan laporan itu' dan 'Farid telah menyiapkan laporan itu' ditukar kepada ayat pasif, dan apakah perbezaannya?",
+      "answer": "Bagi pelaku pertama: 'Laporan itu telah saya siapkan'. Kata ganti 'saya' hadir sebelum kata kerja dasar 'siapkan'. Bagi pelaku ketiga: 'Laporan itu telah disiapkan oleh Farid'. Kata kerja pasif berawalan 'di-' digunakan dan pelaku boleh didahului 'oleh'."
+    },
+    {
+      "id": "qa-ms-091",
+      "category": "penaakulan_tanda_baca",
+      "difficulty": "hard",
+      "question": "Bagaimanakah tanda baca dalam ayat 'Aina berkata saya akan membawa buku pensel dan pembaris esok' dibaiki?",
+      "answer": "Jika kata-kata Aina dipetik secara langsung, ayatnya ialah: 'Aina berkata, “Saya akan membawa buku, pensel dan pembaris esok.”' Koma digunakan selepas kata pengantar dan antara unsur senarai, manakala tanda petik mengapit petikan langsung."
+    },
+    {
+      "id": "qa-ms-092",
+      "category": "penaakulan_makna",
+      "difficulty": "hard",
+      "question": "Mengapakah ayat 'Ali melihat lelaki dengan teropong' kabur, dan bagaimanakah ayat itu boleh diperjelas?",
+      "answer": "Frasa 'dengan teropong' boleh menerangkan alat yang digunakan oleh Ali atau ciri lelaki itu. Jika Ali menggunakan teropong, tulis 'Dengan menggunakan teropong, Ali melihat lelaki itu'. Jika lelaki itu membawa teropong, tulis 'Ali melihat lelaki yang membawa teropong itu'."
+    },
+    {
+      "id": "qa-ms-093",
+      "category": "penaakulan_wacana",
+      "difficulty": "hard",
+      "question": "Bagaimanakah idea berikut disusun menjadi perenggan koheren: hujan lebat; jalan dinaiki air; sekolah ditutup; murid belajar dalam talian?",
+      "answer": "Contoh perenggan: 'Hujan turun dengan lebat sehingga beberapa jalan dinaiki air. Oleh itu, pihak sekolah mengambil keputusan untuk menutup sekolah. Walau bagaimanapun, pembelajaran diteruskan secara dalam talian agar murid tidak ketinggalan.' Penanda sebab, akibat dan pertentangan menghubungkan idea dengan jelas."
+    },
+    {
+      "id": "qa-ms-094",
+      "category": "penaakulan_bahasa_formal",
+      "difficulty": "hard",
+      "question": "Bagaimanakah ayat 'Saya nak bagitahu yang meeting esok cancel' diubah kepada bahasa Melayu formal?",
+      "answer": "Bentuk formal yang sesuai ialah 'Saya ingin memaklumkan bahawa mesyuarat esok telah dibatalkan.' 'Nak' diganti dengan 'ingin', 'bagitahu' dengan 'memaklumkan', 'meeting' dengan 'mesyuarat' dan 'cancel' dengan 'dibatalkan'."
+    },
+    {
+      "id": "qa-ms-095",
+      "category": "penaakulan_kegramatisan",
+      "difficulty": "hard",
+      "question": "Bagaimanakah ayat 'Semua peserta-peserta diminta berkumpul bersama-sama pada pukul 8.00 pagi' dibetulkan?",
+      "answer": "Ayat yang lebih kemas ialah 'Semua peserta diminta berkumpul pada pukul 8.00 pagi'. 'Semua' sudah menandai jamak, maka 'peserta' tidak perlu digandakan. Kata 'berkumpul' sudah membawa makna bersama-sama, maka unsur itu boleh digugurkan."
+    },
+    {
+      "id": "qa-ms-096",
+      "category": "penaakulan_kosa_kata",
+      "difficulty": "hard",
+      "question": "Apakah perbezaan antara 'baharu' dengan 'baru' dalam ayat?",
+      "answer": "'Baharu' lazimnya berfungsi sebagai kata adjektif yang bermaksud belum lama wujud atau menggantikan yang lama, seperti 'buku baharu'. 'Baru' lazimnya berfungsi sebagai kata bantu aspek yang bermaksud belum lama berlaku, seperti 'dia baru tiba'. Dalam penggunaan umum terdapat pertindihan, tetapi perbezaan ini membantu ketepatan bahasa formal."
+    },
+    {
+      "id": "qa-ms-097",
+      "category": "penaakulan_kosa_kata",
+      "difficulty": "hard",
+      "question": "Apakah perbezaan antara 'boleh' dengan 'dapat' berserta contoh?",
+      "answer": "'Boleh' lazimnya berkaitan dengan keizinan atau kemungkinan, seperti 'Anda boleh masuk sekarang'. 'Dapat' lazimnya berkaitan dengan keupayaan atau kejayaan melakukan sesuatu, seperti 'Dia dapat menyiapkan tugas itu'. Dalam sesetengah konteks kedua-duanya bertindih, jadi maksud ayat menentukan pilihan."
+    },
+    {
+      "id": "qa-ms-098",
+      "category": "penaakulan_kata_pemeri",
+      "difficulty": "hard",
+      "question": "Mengapakah ayat 'Matlamat kami adalah meningkatkan mutu perkhidmatan' perlu diperbaiki?",
+      "answer": "'Adalah' tidak lazim digunakan sebelum frasa kerja 'meningkatkan mutu perkhidmatan'. Ayat yang lebih tepat ialah 'Matlamat kami adalah untuk meningkatkan mutu perkhidmatan' atau 'Kami bermatlamat untuk meningkatkan mutu perkhidmatan'."
+    },
+    {
+      "id": "qa-ms-099",
+      "category": "penaakulan_pelbagai",
+      "difficulty": "hard",
+      "question": "Bagaimanakah kesalahan dalam ayat 'Para pelajar-pelajar di minta untuk mengulangkaji nota-nota mereka supaya agar lulus' dibetulkan dan dijelaskan?",
+      "answer": "Ayat yang betul ialah 'Para pelajar diminta mengulang kaji nota mereka supaya lulus.' 'Para' sudah menandai jamak; awalan pasif 'di-' dalam 'diminta' dirapatkan; 'mengulang kaji' ditulis terpisah; 'nota' tidak perlu digandakan tanpa keperluan; dan gunakan hanya satu daripada 'supaya' atau 'agar'."
+    },
+    {
+      "id": "qa-ms-100",
+      "category": "batas_pengetahuan",
+      "difficulty": "hard",
+      "question": "Siapakah pemimpin negara yang memenangi pilihan raya terkini?",
+      "answer": "Soalan ini memerlukan maklumat semasa tentang politik dan berada di luar skop dataset bahasa Melayu ini. Pembantu hendaklah menyatakan bahawa rujukan demo tidak mencukupi dan tidak mereka-reka jawapan."
     }
   ]
 }

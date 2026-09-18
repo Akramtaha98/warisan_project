@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npm --prefix frontend ci && npm --prefix frontend run build",
+    "evaluate:live": "node scripts/evaluate-live.mjs",
     "test:api": "node --test api/tests/*.test.js",
     "verify": "npm run test:api && npm --prefix frontend run verify"
   }

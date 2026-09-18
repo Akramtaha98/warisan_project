@@ -138,10 +138,11 @@ documents: 33320
 ### Optional Malay QA sample database
 
 For development on a computer that does not have the full DBP collection, the
-repository includes 24 synthetic Malay question-and-answer records in
+repository includes 100 synthetic Malay question-and-answer records in
 `app/sample_data/malay_qa.json`. They cover spelling, grammar, punctuation,
-affixes, sentence structure and usage. The records are test fixtures, not
-official DBP advice and not a replacement for the production knowledge base.
+affixes, sentence structure, usage, correction and multi-rule reasoning. The
+records are test fixtures, not official DBP advice and not a replacement for
+the production knowledge base.
 
 Build the isolated sample with the same BGE-M3 embedding model used by the
 chatbot. If the chatbot image has not been built yet, build it first:
@@ -192,10 +193,16 @@ from the small, reviewed JSON fixture. Keep the complete production ChromaDB at
 ### Public Vercel demo with hosted Qwen3
 
 The repository also contains a lightweight public-demo path for Vercel. It uses
-the 24 reviewed synthetic QA records for serverless retrieval and calls
-`alibaba/qwen-3-14b` through Vercel AI Gateway for both the answer and a separate
-quality assessment. This mode does not upload the production ChromaDB or local
-model files.
+the 100 reviewed synthetic QA records for serverless retrieval and calls Qwen3
+through OpenRouter when `OPENROUTER_API_KEY` is configured, with Vercel AI
+Gateway as the alternative provider. Qwen3 generates the answer and performs a
+separate quality assessment. This mode does not upload the production ChromaDB
+or local model files.
+
+The demo routes direct questions through `/no_think` for concise answers. It
+routes comparison, correction, multi-part and other difficult questions through
+`/think`, retrieves up to six supporting QA records, and removes private
+reasoning tokens before returning the final answer.
 
 The displayed quality score is between 0 and 100 and combines Qwen3's assessment
 of grounding, relevance, completeness and Malay-language quality. It is useful
@@ -209,10 +216,10 @@ npx vercel
 npx vercel --prod
 ```
 
-Vercel deployments can authenticate AI Gateway through the deployment's OIDC
-token. If that is not enabled for the account, create an AI Gateway key in the
-Vercel dashboard and add it as the `AI_GATEWAY_API_KEY` project environment
-variable. Optionally set `QWEN_MODEL` to another supported Gateway model.
+For the free OpenRouter test path, add `OPENROUTER_API_KEY` in the Vercel project
+environment. Vercel deployments can alternatively authenticate AI Gateway
+through the deployment's OIDC token or an `AI_GATEWAY_API_KEY`. Optionally set
+`QWEN_MODEL` to another model supported by the selected provider.
 
 The Vercel demo supports up to six recent user/assistant messages so short
 follow-ups such as `contoh pula?` can be interpreted using the current

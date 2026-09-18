@@ -55,7 +55,15 @@ def load_records(path: Path) -> list[dict[str, str]]:
         if record_id in seen_ids:
             raise SampleDataError(f"ID pendua ditemui: {record_id}")
         seen_ids.add(record_id)
-        validated.append({field: record[field].strip() for field in REQUIRED_FIELDS})
+        difficulty = str(record.get("difficulty", "standard")).strip()
+        if difficulty not in {"standard", "hard"}:
+            raise SampleDataError(
+                f"Rekod {index} mempunyai tahap kesukaran tidak sah: {difficulty}."
+            )
+        validated.append({
+            **{field: record[field].strip() for field in REQUIRED_FIELDS},
+            "difficulty": difficulty,
+        })
     return validated
 
 
@@ -176,6 +184,7 @@ def build_sample_collection(
                     "bahasa": "ms",
                     "sumber": "synthetic_project_fixture",
                     "jenis": "qa_sample",
+                    "kesukaran": record["difficulty"],
                 }
                 for record in batch
             ],

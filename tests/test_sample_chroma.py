@@ -14,9 +14,10 @@ class SampleQaDataTests(unittest.TestCase):
         self.assertEqual(payload["language"], "ms")
         self.assertEqual(payload["license"], "CC0-1.0")
         self.assertIn("sintetik", payload["description"].lower())
-        self.assertGreaterEqual(len(records), 20)
+        self.assertEqual(len(records), 100)
         self.assertEqual(len({record["id"] for record in records}), len(records))
-        self.assertGreaterEqual(len({record["category"] for record in records}), 8)
+        self.assertGreaterEqual(len({record["category"] for record in records}), 30)
+        self.assertGreaterEqual(sum(record["difficulty"] == "hard" for record in records), 12)
         for record in records:
             self.assertTrue(record["question"].endswith("?"))
             self.assertGreaterEqual(len(record["answer"].split()), 8)
@@ -115,10 +116,11 @@ class SampleChromaBuilderTests(unittest.TestCase):
         self.assertEqual(model_calls, [(builder.MODEL_NAME, {"use_fp16": False, "device": "cpu"})])
         self.assertEqual(fake_client.created["metadata"]["embedding_model"], builder.MODEL_NAME)
         self.assertEqual(fake_client.created["metadata"]["hnsw:space"], "cosine")
-        self.assertEqual(len(fake_client.collection.add_calls), 4)
+        self.assertEqual(len(fake_client.collection.add_calls), (len(records) + 6) // 7)
         first = fake_client.collection.add_calls[0]
         self.assertTrue(first["documents"][0].startswith("Soalan:"))
         self.assertEqual(first["metadatas"][0]["sumber"], "synthetic_project_fixture")
+        self.assertEqual(first["metadatas"][0]["kesukaran"], "standard")
         self.assertEqual(len(first["embeddings"][0]), 3)
 
     def test_builder_refuses_production_path_and_collection_name(self):

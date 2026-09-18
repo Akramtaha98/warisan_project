@@ -134,7 +134,7 @@ function Sidebar({ open, collapsed, onClose, onToggleCollapse, onNewChat, sessio
           <div className="knowledge-icon"><Database size={18} /></div>
           <div>
             <strong>{demo ? "Dataset demonstrasi" : "Sumber dipercayai"}</strong>
-            <p>{demo ? `${health?.records || 24} QA Bahasa Melayu sintetik` : "33,320 rekod Khidmat Nasihat Bahasa DBP"}</p>
+            <p>{demo ? `${health?.records || 100} QA Bahasa Melayu sintetik` : "33,320 rekod Khidmat Nasihat Bahasa DBP"}</p>
           </div>
         </div>
 
