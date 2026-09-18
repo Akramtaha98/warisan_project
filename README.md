@@ -135,6 +135,89 @@ name:      dbp_khidmatnasihat_clean_atomic
 documents: 33320
 ```
 
+### Optional Malay QA sample database
+
+For development on a computer that does not have the full DBP collection, the
+repository includes 24 synthetic Malay question-and-answer records in
+`app/sample_data/malay_qa.json`. They cover spelling, grammar, punctuation,
+affixes, sentence structure and usage. The records are test fixtures, not
+official DBP advice and not a replacement for the production knowledge base.
+
+Build the isolated sample with the same BGE-M3 embedding model used by the
+chatbot. If the chatbot image has not been built yet, build it first:
+
+```bash
+docker build -t dbp-chatbot:1.0 .
+mkdir -p data/sample_chroma_db
+docker run --rm \
+  -v "$PWD/data/sample_chroma_db:/app/data/sample_chroma_db" \
+  -v dbp-chatbot_huggingface-cache:/root/.cache/huggingface \
+  dbp-chatbot:1.0 \
+  python /app/build_sample_chroma.py \
+    --output /app/data/sample_chroma_db
+```
+
+The command creates the collection `dbp_malay_qa_sample` under
+`data/sample_chroma_db/` and verifies that every source record was inserted.
+To rebuild that sample deliberately, append `--replace`. The builder refuses to
+write to `data/chroma_db` or use the production collection name.
+
+After the normal deployment has configured `.env` and started Qwen3, switch only
+the chatbot container to the sample collection:
+
+```bash
+docker compose -p dbp-chatbot \
+  -f docker-compose.yml \
+  -f docker-compose.sample.yml \
+  up -d --force-recreate chatbot
+
+curl http://127.0.0.1:18501/api/health
+```
+
+You can then ask questions such as `Apakah perbezaan antara ialah dengan
+adalah?` in the web interface. Restore the full production collection by
+running `./deploy.sh` again. The sample override mounts its database read-only.
+
+When all Python dependencies are already installed locally, the equivalent
+command is:
+
+```bash
+python3 app/build_sample_chroma.py
+```
+
+The generated Chroma files are ignored by Git because they can be reproduced
+from the small, reviewed JSON fixture. Keep the complete production ChromaDB at
+`data/chroma_db/` as described above.
+
+### Public Vercel demo with hosted Qwen3
+
+The repository also contains a lightweight public-demo path for Vercel. It uses
+the 24 reviewed synthetic QA records for serverless retrieval and calls
+`alibaba/qwen-3-14b` through Vercel AI Gateway for both the answer and a separate
+quality assessment. This mode does not upload the production ChromaDB or local
+model files.
+
+The displayed quality score is between 0 and 100 and combines Qwen3's assessment
+of grounding, relevance, completeness and Malay-language quality. It is useful
+for testing, but it is a model-generated estimate rather than an official DBP or
+human evaluation.
+
+Deploy from the repository root:
+
+```bash
+npx vercel
+npx vercel --prod
+```
+
+Vercel deployments can authenticate AI Gateway through the deployment's OIDC
+token. If that is not enabled for the account, create an AI Gateway key in the
+Vercel dashboard and add it as the `AI_GATEWAY_API_KEY` project environment
+variable. Optionally set `QWEN_MODEL` to another supported Gateway model.
+
+The Vercel demo supports up to six recent user/assistant messages so short
+follow-ups such as `contoh pula?` can be interpreted using the current
+conversation. It also applies a small per-instance request limit for test use.
+
 ### 3. Check the target machine
 
 ```bash

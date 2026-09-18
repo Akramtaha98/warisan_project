@@ -1,6 +1,7 @@
 # ---- Knowledge base (676 MB, exceeds GitHub's 100 MB per-file limit) ----
 # Transferred separately by scp/USB. See README.md "Getting the knowledge base".
 data/chroma_db/
+data/sample_chroma_db/
 *.sqlite3
 *.zip
 
@@ -29,3 +30,4 @@ frontend/dist/
 # ---- Local completion-check evidence ----
 .unlazy/
 .unlazy-hook-state.json
+.vercel

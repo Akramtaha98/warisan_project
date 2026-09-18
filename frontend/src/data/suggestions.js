@@ -23,6 +23,25 @@ export const suggestions = [
   },
 ];
 
+export const demoSuggestions = [
+  suggestions[0],
+  {
+    icon: SpellCheck2,
+    label: "Jarak atau rapat",
+    prompt: "Apakah perbezaan antara 'di sekolah' dengan 'ditulis'?",
+  },
+  {
+    icon: Languages,
+    label: "Kata majmuk",
+    prompt: "Adakah 'kereta api' ditulis rapat atau terpisah?",
+  },
+  {
+    icon: BookOpenText,
+    label: "Tanda baca",
+    prompt: "Apakah fungsi tanda soal?",
+  },
+];
+
 export const intentLabels = {
   comparison: "Perbandingan",
   correction: "Pembetulan ayat",
@@ -34,5 +53,6 @@ export const intentLabels = {
   yes_no: "Semakan",
   spelling_or_term: "Ejaan & istilah",
   usage: "Penggunaan",
+  follow_up: "Soalan susulan",
   general: "Khidmat bahasa",
 };

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   ArrowUp,
@@ -9,19 +9,26 @@ import {
   Database,
   HelpCircle,
   History,
+  Gauge,
   Menu,
   MessageCircleMore,
+  Moon,
   Plus,
   RotateCcw,
+  Search,
   SearchCheck,
   Sparkles,
+  Sun,
   ThumbsDown,
   ThumbsUp,
+  Trash2,
   X,
   Zap,
 } from "lucide-react";
 import { askQuestion, getHealth, sendFeedback } from "./lib/api";
-import { intentLabels, suggestions } from "./data/suggestions";
+import { demoSuggestions, intentLabels, suggestions } from "./data/suggestions";
+import { loadChatHistory, removeConversation, saveChatHistory, updateConversation } from "./lib/history";
+import { applyTheme, resolveTheme, saveTheme } from "./lib/theme";
 
 const MAX_QUESTION_LENGTH = 2000;
 
@@ -47,7 +54,22 @@ function StatusPill({ health }) {
   );
 }
 
-function Sidebar({ open, onClose, onReset, hasMessages, health }) {
+function formatHistoryTime(timestamp) {
+  const date = new Date(timestamp);
+  const today = new Date();
+  if (date.toDateString() === today.toDateString()) {
+    return date.toLocaleTimeString("ms-MY", { hour: "2-digit", minute: "2-digit" });
+  }
+  return date.toLocaleDateString("ms-MY", { day: "numeric", month: "short" });
+}
+
+function Sidebar({ open, onClose, onNewChat, sessions, activeSessionId, onSelectSession, onDeleteSession, health }) {
+  const demo = health?.mode === "vercel-demo";
+  const [historyQuery, setHistoryQuery] = useState("");
+  const visibleSessions = useMemo(() => {
+    const query = historyQuery.trim().toLocaleLowerCase("ms");
+    return query ? sessions.filter((session) => session.title.toLocaleLowerCase("ms").includes(query)) : sessions;
+  }, [historyQuery, sessions]);
   return (
     <>
       {open && <button className="sidebar-scrim" onClick={onClose} aria-label="Tutup menu" />}
@@ -57,39 +79,62 @@ function Sidebar({ open, onClose, onReset, hasMessages, health }) {
           <button className="icon-button sidebar-close" onClick={onClose} aria-label="Tutup menu"><X size={20} /></button>
         </div>
 
-        <button className="new-chat-button" onClick={onReset}>
+        <button className="new-chat-button" onClick={onNewChat}>
           <Plus size={18} />
           Perbualan baharu
         </button>
 
-        <div className="sidebar-section">
-          <div className="sidebar-label"><History size={14} /> Sesi semasa</div>
-          <button className={`history-item ${hasMessages ? "has-content" : ""}`} disabled={!hasMessages} onClick={onClose}>
-            <MessageCircleMore size={17} />
-            <span>{hasMessages ? "Perbualan bahasa anda" : "Belum ada perbualan"}</span>
-          </button>
+        <div className="sidebar-section history-section">
+          <div className="sidebar-label"><History size={14} /> Sejarah perbualan <span>{sessions.length}</span></div>
+          {sessions.length > 3 && (
+            <label className="history-search">
+              <Search size={14} />
+              <input value={historyQuery} onChange={(event) => setHistoryQuery(event.target.value)} placeholder="Cari perbualan" />
+            </label>
+          )}
+          <div className="history-list">
+            {visibleSessions.map((session) => (
+              <div className={`history-item ${session.id === activeSessionId ? "is-active" : ""}`} key={session.id}>
+                <button className="history-main" onClick={() => onSelectSession(session.id)}>
+                  <span className="history-icon"><MessageCircleMore size={16} /></span>
+                  <span className="history-copy">
+                    <strong>{session.title}</strong>
+                    <small>{formatHistoryTime(session.updatedAt)} · {session.messages.length} mesej</small>
+                  </span>
+                </button>
+                <button className="history-delete" onClick={() => onDeleteSession(session.id)} aria-label={`Padam ${session.title}`} title="Padam perbualan">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+            {!visibleSessions.length && (
+              <div className="history-empty">
+                <MessageCircleMore size={18} />
+                <span>{sessions.length ? "Tiada padanan ditemui" : "Perbualan anda akan muncul di sini"}</span>
+              </div>
+            )}
+          </div>
         </div>
-
-        <div className="sidebar-spacer" />
 
         <div className="knowledge-card">
           <div className="knowledge-icon"><Database size={18} /></div>
           <div>
-            <strong>Sumber dipercayai</strong>
-            <p>33,320 rekod Khidmat Nasihat Bahasa DBP</p>
+            <strong>{demo ? "Dataset demonstrasi" : "Sumber dipercayai"}</strong>
+            <p>{demo ? `${health?.records || 24} QA Bahasa Melayu sintetik` : "33,320 rekod Khidmat Nasihat Bahasa DBP"}</p>
           </div>
         </div>
 
         <div className="sidebar-footer">
           <StatusPill health={health} />
-          <span>Qwen3 · BGE-M3</span>
+          <span>{demo ? "Qwen3 · Vercel AI" : "Qwen3 · BGE-M3"}</span>
         </div>
       </aside>
     </>
   );
 }
 
-function Welcome({ onSelect }) {
+function Welcome({ onSelect, demo }) {
+  const visibleSuggestions = demo ? demoSuggestions : suggestions;
   return (
     <section className="welcome" aria-labelledby="welcome-title">
       <div className="welcome-orbit" aria-hidden="true">
@@ -98,12 +143,13 @@ function Welcome({ onSelect }) {
       <div className="welcome-kicker"><Sparkles size={15} /> Bahasa yang tepat, jawapan yang bersumber</div>
       <h1 id="welcome-title">Bahasa mencerminkan<br /><em>jati diri.</em></h1>
       <p className="welcome-copy">
-        Tanyakan tentang ejaan, istilah, tatabahasa atau penggunaan Bahasa Melayu.
-        Setiap jawapan disemak terhadap sumber Khidmat Nasihat DBP.
+        {demo
+          ? "Uji ejaan, tatabahasa dan penggunaan Bahasa Melayu dengan dataset sintetik yang dinilai oleh Qwen3."
+          : "Tanyakan tentang ejaan, istilah, tatabahasa atau penggunaan Bahasa Melayu. Setiap jawapan disemak terhadap sumber Khidmat Nasihat DBP."}
       </p>
 
       <div className="suggestion-grid">
-        {suggestions.map(({ icon: Icon, label, prompt }) => (
+        {visibleSuggestions.map(({ icon: Icon, label, prompt }) => (
           <button className="suggestion-card" key={label} onClick={() => onSelect(prompt)}>
             <span className="suggestion-icon"><Icon size={19} /></span>
             <span>
@@ -184,6 +230,10 @@ function Feedback({ message }) {
 
 function Message({ message }) {
   const assistant = message.role === "assistant";
+  const quality = message.meta?.qualityBreakdown;
+  const qualityTitle = quality
+    ? `Asas fakta ${quality.grounding} · Relevan ${quality.relevance} · Lengkap ${quality.completeness} · Bahasa ${quality.language}`
+    : "";
   return (
     <article className={`message-row ${assistant ? "assistant" : "user"}`}>
       {assistant && <div className="assistant-avatar"><Sparkles size={17} /></div>}
@@ -201,6 +251,11 @@ function Message({ message }) {
                 {message.meta.thinkingMode === "thinking" ? "Penaakulan mendalam" : "Jawapan langsung"}
               </span>
               {message.meta.topScore !== null && <span>Skor {message.meta.topScore.toFixed(2)}</span>}
+              {message.meta.qualityScore !== null && (
+                <span className="quality-badge" title={`${message.meta.qualityLabel}. ${qualityTitle}. ${message.meta.evaluationNote}`}>
+                  <Gauge size={13} /> Kualiti Qwen3 {message.meta.qualityScore}/100
+                </span>
+              )}
             </div>
             <SourceList sources={message.meta.sources} />
             <Feedback message={message} />
@@ -226,7 +281,7 @@ function ThinkingMessage() {
   );
 }
 
-function Composer({ value, onChange, onSubmit, disabled }) {
+function Composer({ value, onChange, onSubmit, disabled, demo }) {
   const textarea = useRef(null);
   useEffect(() => {
     const node = textarea.current;
@@ -262,19 +317,32 @@ function Composer({ value, onChange, onSubmit, disabled }) {
           </button>
         </div>
       </div>
-      <p className="composer-note">Jawapan dijana berdasarkan sumber DBP. Sila sahkan maklumat penting.</p>
+      <p className="composer-note">{demo ? "Demo menggunakan data sintetik. Skor Qwen3 bukan pengesahan rasmi." : "Jawapan dijana berdasarkan sumber DBP. Sila sahkan maklumat penting."}</p>
     </div>
   );
 }
 
 export default function App() {
-  const [messages, setMessages] = useState([]);
+  const [chatState, setChatState] = useState(() => loadChatHistory());
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pendingSessionId, setPendingSessionId] = useState(null);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [health, setHealth] = useState(null);
+  const [theme, setTheme] = useState(() => resolveTheme());
   const bottomRef = useRef(null);
+  const activeSession = chatState.sessions.find((session) => session.id === chatState.activeSessionId);
+  const messages = activeSession?.messages || [];
+
+  useEffect(() => {
+    saveChatHistory(chatState);
+  }, [chatState]);
+
+  useLayoutEffect(() => {
+    applyTheme(theme);
+    saveTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     getHealth().then(setHealth).catch(() => setHealth({ status: "degraded" }));
@@ -282,42 +350,59 @@ export default function App() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, loading]);
+  }, [messages, loading, chatState.activeSessionId]);
 
   async function submitQuestion(forcedQuestion, appendUser = true) {
     const prompt = (forcedQuestion ?? question).trim();
     if (prompt.length < 2 || loading) return;
+    const sessionId = chatState.activeSessionId || crypto.randomUUID();
+    const startingMessages = activeSession?.messages || [];
+    const nextMessages = appendUser
+      ? [...startingMessages, { id: crypto.randomUUID(), role: "user", content: prompt }]
+      : startingMessages;
     setQuestion("");
     setError(null);
     setLoading(true);
-    if (appendUser) {
-      const userMessage = { id: crypto.randomUUID(), role: "user", content: prompt };
-      setMessages((current) => [...current, userMessage]);
-    }
+    setPendingSessionId(sessionId);
+    setChatState((current) => updateConversation(current, sessionId, nextMessages));
     try {
-      const response = await askQuestion(prompt);
-      setMessages((current) => [
-        ...current,
-        {
+      const history = startingMessages.slice(-6).map(({ role, content }) => ({ role, content }));
+      const response = await askQuestion(prompt, history);
+      setChatState((current) => {
+        const target = current.sessions.find((session) => session.id === sessionId);
+        const targetMessages = target?.messages || nextMessages;
+        return updateConversation(current, sessionId, [...targetMessages, {
           id: crypto.randomUUID(),
           role: "assistant",
           question: prompt,
           content: response.answer,
           meta: response,
-        },
-      ]);
+        }]);
+      });
     } catch (requestError) {
-      setError({ message: requestError.message, prompt });
+      setError({ message: requestError.message, prompt, sessionId });
     } finally {
       setLoading(false);
+      setPendingSessionId(null);
     }
   }
 
-  function resetConversation() {
-    setMessages([]);
+  function startNewConversation() {
+    setChatState((current) => ({ ...current, activeSessionId: null }));
     setQuestion("");
     setError(null);
     setSidebarOpen(false);
+  }
+
+  function selectConversation(sessionId) {
+    setChatState((current) => ({ ...current, activeSessionId: sessionId }));
+    setError(null);
+    setSidebarOpen(false);
+  }
+
+  function deleteConversation(sessionId) {
+    setChatState((current) => removeConversation(current, sessionId));
+    if (error?.sessionId === sessionId) setError(null);
   }
 
   return (
@@ -325,8 +410,11 @@ export default function App() {
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onReset={resetConversation}
-        hasMessages={messages.length > 0}
+        onNewChat={startNewConversation}
+        sessions={chatState.sessions}
+        activeSessionId={chatState.activeSessionId}
+        onSelectSession={selectConversation}
+        onDeleteSession={deleteConversation}
         health={health}
       />
 
@@ -335,21 +423,30 @@ export default function App() {
           <button className="icon-button menu-button" onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu size={21} /></button>
           <div className="mobile-brand"><Brand /></div>
           <div className="topbar-title">
-            <span>Khidmat Nasihat Bahasa</span>
-            <small>Jawapan berasaskan sumber DBP</small>
+            <span>{activeSession?.title || "Khidmat Nasihat Bahasa"}</span>
+            <small>{health?.mode === "vercel-demo" ? "Demo QA Melayu · dinilai Qwen3" : "Jawapan berasaskan sumber DBP"}</small>
           </div>
           <StatusPill health={health} />
-          {messages.length > 0 && <button className="reset-button" onClick={resetConversation}><RotateCcw size={15} /> Mula semula</button>}
+          <button
+            className="icon-button theme-toggle"
+            onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")}
+            aria-label={theme === "dark" ? "Gunakan mod cerah" : "Gunakan mod gelap"}
+            title={theme === "dark" ? "Mod cerah" : "Mod gelap"}
+            aria-pressed={theme === "dark"}
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          {messages.length > 0 && <button className="reset-button" onClick={startNewConversation}><RotateCcw size={15} /> Chat baharu</button>}
         </header>
 
         <div className={`conversation ${messages.length ? "has-messages" : "is-empty"}`}>
           {messages.length === 0 ? (
-            <Welcome onSelect={(prompt) => submitQuestion(prompt)} />
+            <Welcome onSelect={(prompt) => submitQuestion(prompt)} demo={health?.mode === "vercel-demo"} />
           ) : (
             <div className="message-list">
               {messages.map((message) => <Message key={message.id} message={message} />)}
-              {loading && <ThinkingMessage />}
-              {error && (
+              {loading && pendingSessionId === chatState.activeSessionId && <ThinkingMessage />}
+              {error?.sessionId === chatState.activeSessionId && (
                 <div className="error-card" role="alert">
                   <HelpCircle size={18} />
                   <div><strong>Jawapan tidak dapat dijana</strong><p>{error.message}</p></div>
@@ -361,7 +458,7 @@ export default function App() {
           )}
         </div>
 
-        <Composer value={question} onChange={setQuestion} onSubmit={() => submitQuestion()} disabled={loading} />
+        <Composer value={question} onChange={setQuestion} onSubmit={() => submitQuestion()} disabled={loading} demo={health?.mode === "vercel-demo"} />
       </main>
     </div>
   );

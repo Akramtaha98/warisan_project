@@ -8,6 +8,7 @@ test("normalizes optional reasoning metadata", () => {
   assert.equal(result.thinkingMode, "thinking");
   assert.deepEqual(result.sources, []);
   assert.equal(result.topScore, null);
+  assert.equal(result.qualityScore, null);
 });
 
 test("chat request uses the same-origin JSON API", async () => {
@@ -19,10 +20,12 @@ test("chat request uses the same-origin JSON API", async () => {
       json: async () => ({ answer: "Bentuk yang betul ialah kerjasama." }),
     };
   };
-  const result = await askQuestion("Ejaan kerjasama?", fetcher);
+  const history = [{ role: "user", content: "Tentang ejaan." }];
+  const result = await askQuestion("Ejaan kerjasama?", history, fetcher);
   assert.equal(result.answer, "Bentuk yang betul ialah kerjasama.");
   assert.equal(calls[0][0], "/api/chat");
   assert.equal(JSON.parse(calls[0][1].body).question, "Ejaan kerjasama?");
+  assert.deepEqual(JSON.parse(calls[0][1].body).history, history);
 });
 
 test("API errors expose the safe server detail", async () => {
@@ -30,7 +33,20 @@ test("API errors expose the safe server detail", async () => {
     ok: false,
     json: async () => ({ detail: "Sistem jawapan belum tersedia." }),
   });
-  await assert.rejects(() => askQuestion("Soalan", fetcher), /belum tersedia/);
+  await assert.rejects(() => askQuestion("Soalan", [], fetcher), /belum tersedia/);
+});
+
+test("normalizes the Qwen3 answer-quality assessment", () => {
+  const result = normalizeChatResponse({
+    answer: "Jawapan.",
+    quality_score: 88,
+    quality_label: "Sangat baik",
+    quality_breakdown: { grounding: 90, relevance: 87, completeness: 82, language: 94 },
+    evaluation_note: "Tepat.",
+  });
+  assert.equal(result.qualityScore, 88);
+  assert.equal(result.qualityLabel, "Sangat baik");
+  assert.equal(result.qualityBreakdown.grounding, 90);
 });
 
 test("feedback sends the selected rating", async () => {

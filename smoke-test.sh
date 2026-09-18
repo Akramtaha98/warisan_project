@@ -13,19 +13,22 @@ if [ "$mode" != "offline" ] && [ "$mode" != "--live" ]; then
   exit 2
 fi
 
-echo "[1/5] Checking Python source"
+echo "[1/6] Checking Python source"
 python3 -m compileall -q app tests
 
-echo "[2/5] Checking deployment script"
+echo "[2/6] Checking deployment script"
 bash -n deploy.sh
 
-echo "[3/5] Verifying the React application"
+echo "[3/6] Verifying the React application"
 npm --prefix frontend run verify
 
-echo "[4/5] Running API and reasoning regressions"
+echo "[4/6] Verifying the Vercel Qwen3 API"
+npm run test:api
+
+echo "[5/6] Running API, reasoning, and sample-data regressions"
 python3 -m unittest discover -s tests -v
 
-echo "[5/5] Checking generated deployment configuration"
+echo "[6/6] Checking generated deployment configuration"
 python3 -m unittest tests.test_deployment_config -v
 
 if [ "$mode" = "--live" ]; then

@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+.unlazy
+/data
+/data_eval
+/docs
+frontend/dist
+frontend/node_modules
+app/api
+app/scripts
+app/*.py
+/tests
+requirements.txt
+*.bak-*
+*.sqlite3

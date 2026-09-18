@@ -1,0 +1,153 @@
+{
+  "name": "Malay QA Sample for Warisan",
+  "version": "1.0.0",
+  "language": "ms",
+  "license": "CC0-1.0",
+  "description": "Data sintetik untuk ujian pembangunan dan bukan pengganti sumber rasmi DBP.",
+  "records": [
+    {
+      "id": "qa-ms-001",
+      "category": "kata_pemeri",
+      "question": "Apakah perbezaan antara 'ialah' dengan 'adalah'?",
+      "answer": "'Ialah' lazimnya hadir sebelum frasa nama, manakala 'adalah' lazimnya hadir sebelum frasa adjektif atau frasa sendi nama. Contohnya, 'Beliau ialah guru' dan 'Keputusan itu adalah muktamad'."
+    },
+    {
+      "id": "qa-ms-002",
+      "category": "kata_sendi",
+      "question": "Bilakah kata sendi 'dari' digunakan?",
+      "answer": "Kata sendi 'dari' digunakan untuk menyatakan tempat, arah dan waktu. Contohnya, 'Dia datang dari Johor' dan 'Mesyuarat berlangsung dari pagi hingga petang'."
+    },
+    {
+      "id": "qa-ms-003",
+      "category": "kata_sendi",
+      "question": "Bilakah kata sendi 'daripada' digunakan?",
+      "answer": "Kata sendi 'daripada' digunakan antara lain untuk menyatakan sumber manusia, haiwan atau benda, bahan asal, perbandingan dan unsur abstrak. Contohnya, 'Hadiah itu daripada ibu' dan 'Meja ini diperbuat daripada kayu'."
+    },
+    {
+      "id": "qa-ms-004",
+      "category": "ejaan",
+      "question": "Apakah perbezaan antara 'di' yang dijarakkan dengan 'di-' yang dirapatkan?",
+      "answer": "'Di' sebagai kata sendi nama ditulis terpisah sebelum tempat, seperti 'di sekolah'. Awalan pasif 'di-' pula ditulis rapat dengan kata kerja, seperti 'ditulis' dan 'dibaca'."
+    },
+    {
+      "id": "qa-ms-005",
+      "category": "ejaan",
+      "question": "Bagaimanakah penggunaan 'ke' dan awalan 'ke-' dibezakan?",
+      "answer": "'Ke' sebagai kata sendi nama ditulis terpisah untuk arah atau tempat, seperti 'ke pejabat'. Awalan 'ke-' ditulis rapat sebagai sebahagian daripada kata terbitan, seperti 'kedua' dan 'ketua'."
+    },
+    {
+      "id": "qa-ms-006",
+      "category": "ejaan",
+      "question": "Adakah partikel 'pun' perlu ditulis terpisah?",
+      "answer": "Partikel 'pun' pada umumnya ditulis terpisah, seperti 'apa pun' dan 'di mana pun'. Beberapa bentuk yang telah mantap ditulis serangkai, antaranya 'walaupun', 'meskipun', 'ataupun' dan 'bagaimanapun'."
+    },
+    {
+      "id": "qa-ms-007",
+      "category": "ejaan",
+      "question": "Apakah ejaan baku bagi 'aktiviti' atau 'aktivitas'?",
+      "answer": "Dalam bahasa Melayu baku, ejaan yang digunakan ialah 'aktiviti'. Contoh ayat: 'Aktiviti kokurikulum berlangsung pada hari Rabu'."
+    },
+    {
+      "id": "qa-ms-008",
+      "category": "ejaan",
+      "question": "Apakah ejaan yang betul bagi kata 'analisis'?",
+      "answer": "Ejaan bakunya ialah 'analisis'. Bentuk kata kerjanya ialah 'menganalisis', manakala orang yang menjalankan analisis disebut 'penganalisis'."
+    },
+    {
+      "id": "qa-ms-009",
+      "category": "kata_majmuk",
+      "question": "Adakah 'kereta api' ditulis rapat atau terpisah?",
+      "answer": "'Kereta api' ialah kata majmuk yang ditulis terpisah. Contoh ayat: 'Kami menaiki kereta api ke utara'."
+    },
+    {
+      "id": "qa-ms-010",
+      "category": "kata_majmuk",
+      "question": "Mengapakah 'tanggungjawab' ditulis serangkai?",
+      "answer": "'Tanggungjawab' ialah bentuk kata majmuk yang telah mantap dan oleh itu ditulis serangkai. Apabila menerima imbuhan, bentuknya juga kekal serangkai, seperti 'bertanggungjawab'."
+    },
+    {
+      "id": "qa-ms-011",
+      "category": "imbuhan",
+      "question": "Apakah fungsi awalan 'ber-'?",
+      "answer": "Awalan 'ber-' membentuk kata kerja yang dapat membawa makna melakukan perbuatan, mempunyai sesuatu atau berada dalam keadaan tertentu. Contohnya ialah 'berjalan', 'berkeluarga' dan 'bergembira'."
+    },
+    {
+      "id": "qa-ms-012",
+      "category": "imbuhan",
+      "question": "Bagaimanakah awalan 'meN-' berubah sebelum kata dasar tertentu?",
+      "answer": "Awalan 'meN-' mempunyai beberapa bentuk, termasuk 'me-', 'mem-', 'men-', 'meng-' dan 'meny-', bergantung pada bunyi awal kata dasar. Contohnya ialah 'melihat', 'membaca', 'menulis', 'menggali' dan 'menyapu'."
+    },
+    {
+      "id": "qa-ms-013",
+      "category": "kata_ganda",
+      "question": "Bagaimanakah kata ganda penuh ditulis?",
+      "answer": "Kata ganda penuh ditulis dengan tanda sempang di antara unsur yang diulang, seperti 'buku-buku', 'murid-murid' dan 'rumah-rumah'."
+    },
+    {
+      "id": "qa-ms-014",
+      "category": "tanda_baca",
+      "question": "Bilakah tanda koma digunakan dalam senarai?",
+      "answer": "Tanda koma digunakan untuk memisahkan unsur yang berturutan dalam senarai. Contohnya, 'Dia membeli buku, pensel, pembaris dan pemadam'."
+    },
+    {
+      "id": "qa-ms-015",
+      "category": "tanda_baca",
+      "question": "Apakah fungsi tanda soal?",
+      "answer": "Tanda soal diletakkan pada akhir ayat tanya langsung. Contohnya, 'Bilakah mesyuarat itu akan bermula?'"
+    },
+    {
+      "id": "qa-ms-016",
+      "category": "huruf_besar",
+      "question": "Bilakah huruf besar digunakan pada nama khas?",
+      "answer": "Huruf besar digunakan pada awal nama khas orang, tempat dan institusi. Contohnya ialah 'Aminah', 'Kuala Lumpur' dan 'Universiti Malaya'."
+    },
+    {
+      "id": "qa-ms-017",
+      "category": "ayat_pasif",
+      "question": "Bagaimanakah ayat aktif ditukar kepada ayat pasif?",
+      "answer": "Dalam ayat pasif, unsur yang menerima perbuatan diletakkan sebagai subjek. Contohnya, ayat aktif 'Ali membaca buku itu' dapat dipasifkan menjadi 'Buku itu dibaca oleh Ali'."
+    },
+    {
+      "id": "qa-ms-018",
+      "category": "penanda_wacana",
+      "question": "Apakah fungsi penanda wacana 'namun demikian'?",
+      "answer": "'Namun demikian' menandai pertentangan atau perbezaan dengan pernyataan sebelumnya. Penanda ini membantu menghubungkan idea secara tersusun dalam wacana."
+    },
+    {
+      "id": "qa-ms-019",
+      "category": "kata_hubung",
+      "question": "Apakah perbezaan fungsi 'kerana' dengan 'supaya'?",
+      "answer": "'Kerana' menghubungkan sebab, manakala 'supaya' menghubungkan tujuan atau harapan. Contohnya, 'Dia berehat kerana letih' dan 'Dia belajar supaya berjaya'."
+    },
+    {
+      "id": "qa-ms-020",
+      "category": "penjodoh_bilangan",
+      "question": "Apakah penjodoh bilangan yang sesuai untuk buku?",
+      "answer": "Penjodoh bilangan yang lazim untuk buku ialah 'buah' atau 'naskhah', bergantung pada konteks. Contohnya, 'sebuah buku rujukan' dan 'senaskhah buku panduan'."
+    },
+    {
+      "id": "qa-ms-021",
+      "category": "laras_bahasa",
+      "question": "Apakah maksud bahasa formal?",
+      "answer": "Bahasa formal ialah bahasa yang mematuhi bentuk baku dan sesuai digunakan dalam urusan rasmi, akademik atau pentadbiran. Pemilihan kata dan struktur ayatnya biasanya lebih terkawal."
+    },
+    {
+      "id": "qa-ms-022",
+      "category": "singkatan",
+      "question": "Bagaimanakah singkatan gelaran 'Doktor' ditulis?",
+      "answer": "Singkatan bagi gelaran 'Doktor' ditulis sebagai 'Dr.' dan digunakan sebelum nama orang, seperti 'Dr. Hana'."
+    },
+    {
+      "id": "qa-ms-023",
+      "category": "kata_tanya",
+      "question": "Apakah perbezaan antara 'siapa' dengan 'apa'?",
+      "answer": "'Siapa' digunakan untuk menanyakan orang, manakala 'apa' digunakan untuk menanyakan benda, perkara atau hal. Contohnya, 'Siapa nama guru itu?' dan 'Apa yang berlaku?'"
+    },
+    {
+      "id": "qa-ms-024",
+      "category": "ayat",
+      "question": "Apakah ciri asas ayat lengkap?",
+      "answer": "Ayat lengkap lazimnya mengandungi subjek dan predikat serta menyampaikan maksud yang sempurna. Dalam ayat 'Murid itu rajin', 'Murid itu' ialah subjek dan 'rajin' ialah predikat."
+    }
+  ]
+}

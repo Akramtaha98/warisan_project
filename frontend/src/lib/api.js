@@ -15,15 +15,21 @@ export function normalizeChatResponse(payload) {
     expanded: Boolean(payload?.expanded),
     questionType: payload?.question_type || "general",
     thinkingMode: payload?.thinking_mode || "direct",
+    qualityScore: typeof payload?.quality_score === "number" ? payload.quality_score : null,
+    qualityLabel: payload?.quality_label || "",
+    qualityBreakdown: payload?.quality_breakdown || null,
+    evaluationNote: payload?.evaluation_note || "",
+    datasetMode: payload?.dataset_mode || "production",
+    model: payload?.model || "",
     sources: Array.isArray(payload?.sources) ? payload.sources : [],
   };
 }
 
-export async function askQuestion(question, fetcher = fetch) {
+export async function askQuestion(question, history = [], fetcher = fetch) {
   const response = await fetcher("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({ question, history }),
   });
   return normalizeChatResponse(await parseResponse(response));
 }

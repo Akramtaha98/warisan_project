@@ -1,0 +1,11 @@
+{
+  "name": "warisan-vercel-demo",
+  "private": true,
+  "version": "3.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build",
+    "test:api": "node --test api/tests/*.test.js",
+    "verify": "npm run test:api && npm --prefix frontend run verify"
+  }
+}

@@ -1,0 +1,9 @@
+# Development-only override. Apply together with docker-compose.yml after the
+# sample collection has been built; never use this file for production checks.
+services:
+  chatbot:
+    environment:
+      CHROMA_PERSIST_DIR: /app/data/chroma_db
+      CHROMA_COLLECTION_NAME: dbp_malay_qa_sample
+    volumes:
+      - ./data/sample_chroma_db:/app/data/chroma_db:ro
