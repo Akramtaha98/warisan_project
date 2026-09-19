@@ -216,6 +216,12 @@ of grounding, relevance, completeness and Malay-language quality. It is useful
 for testing, but it is a model-generated estimate rather than an official DBP or
 human evaluation.
 
+If the hosted Qwen3 service is rate-limited, unavailable, not configured or too
+slow, the public demo automatically returns a clearly labelled **Jawapan dataset**
+from the closest matching local QA record. Greetings are also handled locally.
+This fallback keeps the website usable without sending the question to another
+unapproved provider; it does not pretend that the fallback answer came from Qwen3.
+
 Deploy from the repository root:
 
 ```bash

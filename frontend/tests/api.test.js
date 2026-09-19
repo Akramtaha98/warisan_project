@@ -3,12 +3,14 @@ import test from "node:test";
 import { askQuestion, normalizeChatResponse, sendFeedback } from "../src/lib/api.js";
 
 test("normalizes optional reasoning metadata", () => {
-  const result = normalizeChatResponse({ answer: "  Jawapan.  ", thinking_mode: "thinking" });
+  const result = normalizeChatResponse({ answer: "  Jawapan.  ", thinking_mode: "thinking", fallback_used: true, provider: "local-dataset-fallback" });
   assert.equal(result.answer, "Jawapan.");
   assert.equal(result.thinkingMode, "thinking");
   assert.deepEqual(result.sources, []);
   assert.equal(result.topScore, null);
   assert.equal(result.qualityScore, null);
+  assert.equal(result.fallbackUsed, true);
+  assert.equal(result.provider, "local-dataset-fallback");
 });
 
 test("chat request uses the same-origin JSON API", async () => {

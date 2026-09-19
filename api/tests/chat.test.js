@@ -92,7 +92,7 @@ test("the user can force deep reasoning for a simple question", async () => {
   assert.equal(result.context_count, 6);
 });
 
-test("judge values are clamped and missing credentials fail safely", async () => {
+test("judge values are clamped and missing credentials use the local dataset", async () => {
   const fetcher = async (_url, options) => {
     const body = JSON.parse(options.body);
     return body.max_tokens > 300
@@ -105,10 +105,10 @@ test("judge values are clamped and missing credentials fail safely", async () =>
   );
   assert.equal(result.quality_score, 100);
   assert.equal(result.quality_breakdown.grounding, 0);
-  await assert.rejects(
-    () => createChatResponse({ question: "Soalan?" }, { fetcher, env: {} }),
-    /Pengesahan/,
-  );
+  const fallback = await createChatResponse({ question: "Apakah fungsi tanda soal?" }, { fetcher, env: {} });
+  assert.equal(fallback.fallback_used, true);
+  assert.equal(fallback.provider, "local-dataset-fallback");
+  assert.match(fallback.answer, /tanda soal/i);
 });
 
 test("OpenRouter uses the free Qwen3 model when its key is configured", async () => {
@@ -175,4 +175,38 @@ test("temporary provider limits are retried before succeeding", async () => {
 
   assert.equal(calls, 4);
   assert.equal(result.answer, "Jawapan selepas percubaan semula.");
+});
+
+test("permanent provider limits fall back to a grounded dataset answer", async () => {
+  let calls = 0;
+  const fetcher = async () => {
+    calls += 1;
+    return {
+      ok: false,
+      status: 429,
+      json: async () => ({ error: { message: "Provider returned error" } }),
+    };
+  };
+
+  const result = await createChatResponse(
+    { question: "Apakah fungsi tanda soal?", reasoning_mode: "deep" },
+    { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } },
+  );
+
+  assert.equal(calls, 3);
+  assert.equal(result.fallback_used, true);
+  assert.equal(result.provider, "local-dataset-fallback");
+  assert.equal(result.model, "local-dataset");
+  assert.equal(result.thinking_mode, "retrieval");
+  assert.equal(result.context_count, 6);
+  assert.match(result.answer, /tanda soal/i);
+});
+
+test("greetings work locally without Qwen credentials or irrelevant sources", async () => {
+  const result = await createChatResponse({ question: "hi" }, { env: {} });
+  assert.equal(result.fallback_used, true);
+  assert.match(result.answer, /Hai!|Warisan/);
+  assert.equal(result.context_count, 0);
+  assert.equal(result.quality_score, null);
+  assert.deepEqual(result.sources, []);
 });

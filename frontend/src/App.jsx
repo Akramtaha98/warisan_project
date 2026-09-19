@@ -260,14 +260,14 @@ function Message({ message }) {
           <>
             <div className="answer-meta">
               <span><BookMarked size={14} /> {intentLabels[message.meta.questionType] || intentLabels.general}</span>
-              <span className={message.meta.thinkingMode === "thinking" ? "reasoning-badge" : "direct-badge"}>
-                {message.meta.thinkingMode === "thinking" ? <Sparkles size={13} /> : <Zap size={13} />}
-                {message.meta.thinkingMode === "thinking" ? "Penaakulan mendalam" : "Jawapan langsung"}
+              <span className={message.meta.fallbackUsed ? "fallback-badge" : message.meta.thinkingMode === "thinking" ? "reasoning-badge" : "direct-badge"}>
+                {message.meta.fallbackUsed ? <Database size={13} /> : message.meta.thinkingMode === "thinking" ? <Sparkles size={13} /> : <Zap size={13} />}
+                {message.meta.fallbackUsed ? "Jawapan dataset" : message.meta.thinkingMode === "thinking" ? "Penaakulan mendalam" : "Jawapan langsung"}
               </span>
               {message.meta.topScore !== null && <span>Skor {message.meta.topScore.toFixed(2)}</span>}
               {message.meta.qualityScore !== null && (
                 <span className="quality-badge" title={`${message.meta.qualityLabel}. ${qualityTitle}. ${message.meta.evaluationNote}`}>
-                  <Gauge size={13} /> Kualiti Qwen3 {message.meta.qualityScore}/100
+                  <Gauge size={13} /> Kualiti {message.meta.fallbackUsed ? "dataset" : "Qwen3"} {message.meta.qualityScore}/100
                 </span>
               )}
             </div>

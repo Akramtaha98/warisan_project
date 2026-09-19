@@ -21,6 +21,7 @@ async function callQwen(messages, {
   url,
   headers = {},
   reasoning,
+  timeoutMs = 30_000,
 }) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const requestBody = {
@@ -38,6 +39,7 @@ async function callQwen(messages, {
         "Content-Type": "application/json",
         ...headers,
       },
+      signal: AbortSignal.timeout(timeoutMs),
       body: JSON.stringify(requestBody),
     });
     const payload = await response.json().catch(() => ({}));
@@ -95,6 +97,58 @@ function parseJudgeResult(text, retrievalScore) {
 
 function formatContexts(matches) {
   return matches.map((match, index) => `[${index + 1}] ${match.document}`).join("\n\n");
+}
+
+function createDatasetFallback(question, retrieval, routing) {
+  const isGreeting = /^(hi|hai|hello|helo|salam|assalamualaikum)[!. ]*$/i.test(question);
+  if (isGreeting) {
+    return {
+      content: "Hai! Saya **Warisan**, pembantu Bahasa Melayu. Anda boleh bertanya tentang ejaan, tatabahasa, istilah, tanda baca atau penggunaan kata.",
+      model: "local-dataset",
+      provider: "local-dataset-fallback",
+      fallback: true,
+      greeting: true,
+    };
+  }
+
+  const topMatch = retrieval.matches[0];
+  const supported = topMatch && topMatch.lexicalScore > 0 && retrieval.retrievalScore >= 0.12;
+  if (!supported) {
+    return {
+      content: [
+        "Maaf, dataset demonstrasi belum mempunyai maklumat yang cukup tepat untuk menjawab soalan itu.",
+        "Cuba tanyakan tentang ejaan, tatabahasa, kata sendi, imbuhan, tanda baca atau peribahasa Bahasa Melayu.",
+      ].join("\n\n"),
+      model: "local-dataset",
+      provider: "local-dataset-fallback",
+      fallback: true,
+      greeting: false,
+    };
+  }
+
+  const prefix = routing.hard
+    ? `Saya menyemak ${retrieval.matches.length} rekod dataset yang paling berkaitan. Berdasarkan padanan terkuat:`
+    : "Berdasarkan rekod dataset yang paling berkaitan:";
+  return {
+    content: `${prefix}\n\n${topMatch.answer}`,
+    model: "local-dataset",
+    provider: "local-dataset-fallback",
+    fallback: true,
+    greeting: false,
+  };
+}
+
+function evaluateDatasetFallback(retrieval, supported) {
+  const relevance = supported ? Math.max(35, Math.round(retrieval.retrievalScore * 100)) : 10;
+  return parseJudgeResult(JSON.stringify({
+    grounding: supported ? 100 : 20,
+    relevance,
+    completeness: supported ? 72 : 20,
+    language: 90,
+    note: supported
+      ? "Jawapan diambil terus daripada rekod dataset kerana Qwen3 tidak tersedia."
+      : "Tiada padanan dataset yang cukup kuat dan Qwen3 tidak tersedia.",
+  }), retrieval.retrievalScore);
 }
 
 export function classifyQuestion(question, matches = [], isFollowUp = false) {
@@ -156,11 +210,6 @@ export async function createChatResponse(body, options = {}) {
       url: VERCEL_GATEWAY_URL,
     });
   }
-  if (providers.length === 0) {
-    const error = new Error("Pengesahan Vercel AI Gateway belum tersedia.");
-    error.statusCode = 503;
-    throw error;
-  }
   const callAvailableQwen = async (messages, settings, preferredModel) => {
     const orderedProviders = preferredModel
       ? [...providers].sort((provider) => provider.model === preferredModel ? -1 : 1)
@@ -193,7 +242,10 @@ export async function createChatResponse(body, options = {}) {
   const conversation = history.map((item) => `${item.role === "user" ? "Pengguna" : "Pembantu"}: ${item.content}`).join("\n");
   const reasoningDirective = routing.hard ? "/think" : "/no_think";
 
-  const answerResult = await callAvailableQwen([
+  let answerResult;
+  try {
+    if (providers.length === 0) throw new Error("Tiada penyedia Qwen3 dikonfigurasikan.");
+    answerResult = await callAvailableQwen([
     {
       role: "system",
       content: [
@@ -215,11 +267,17 @@ export async function createChatResponse(body, options = {}) {
     maxTokens: routing.hard ? 1000 : 550,
     temperature: routing.hard ? 0.2 : 0.15,
     reasoning: routing.hard && useOpenRouter ? { effort: "medium", exclude: true } : undefined,
+    timeoutMs: routing.hard ? 38_000 : 28_000,
   });
+  } catch {
+    answerResult = createDatasetFallback(question, retrieval, routing);
+  }
   const answer = answerResult.content;
 
   let evaluation;
-  try {
+  if (answerResult.fallback) {
+    evaluation = evaluateDatasetFallback(retrieval, !answerResult.greeting && retrieval.matches[0]?.lexicalScore > 0 && retrieval.retrievalScore >= 0.12);
+  } else try {
     const judgeResult = await callAvailableQwen([
       {
         role: "system",
@@ -234,7 +292,7 @@ export async function createChatResponse(body, options = {}) {
           'Pulangkan {"overall":0-100,"grounding":0-100,"relevance":0-100,"completeness":0-100,"language":0-100,"note":"ringkas"}.',
         ].join("\n\n"),
       },
-    ], { maxTokens: 220, temperature: 0 }, answerResult.model);
+    ], { maxTokens: 220, temperature: 0, timeoutMs: 12_000 }, answerResult.model);
     evaluation = parseJudgeResult(judgeResult.content, retrieval.retrievalScore);
   } catch {
     evaluation = parseJudgeResult("{}", retrieval.retrievalScore);
@@ -245,21 +303,22 @@ export async function createChatResponse(body, options = {}) {
     answer,
     question,
     top_score: Number(retrieval.retrievalScore.toFixed(2)),
-    quality_score: evaluation.overall,
-    quality_label: evaluation.label,
-    quality_breakdown: evaluation.dimensions,
-    evaluation_note: evaluation.note,
+    quality_score: answerResult.greeting ? null : evaluation.overall,
+    quality_label: answerResult.greeting ? "" : evaluation.label,
+    quality_breakdown: answerResult.greeting ? null : evaluation.dimensions,
+    evaluation_note: answerResult.greeting ? "Ucapan diproses secara setempat." : evaluation.note,
     used_hyde: false,
     expanded: retrieval.retrievalQuery !== question,
     question_type: routing.type,
-    thinking_mode: routing.hard ? "thinking" : "direct",
-    reasoning_depth: routing.hard ? "deep" : "standard",
+    thinking_mode: answerResult.fallback ? "retrieval" : routing.hard ? "thinking" : "direct",
+    reasoning_depth: answerResult.fallback ? "dataset" : routing.hard ? "deep" : "standard",
     reasoning_requested: requestedReasoningMode === "deep",
-    context_count: retrieval.matches.length,
+    fallback_used: Boolean(answerResult.fallback),
+    context_count: answerResult.greeting ? 0 : retrieval.matches.length,
     model: answerResult.model,
     provider: answerResult.provider,
     dataset_mode: "synthetic-demo",
-    sources: retrieval.matches.map((match) => ({
+    sources: (answerResult.greeting ? [] : retrieval.matches).map((match) => ({
       index: match.rank,
       preview: match.document.slice(0, 320),
       category: match.category,

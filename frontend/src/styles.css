@@ -226,6 +226,7 @@ button:focus-visible, textarea:focus-visible {
 .answer-meta > span { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 7px; background: rgba(18,55,42,.05); color: #6a7a72; font-size: 9.5px; font-weight: 700; }
 .answer-meta .reasoning-badge { color: #835c18; background: var(--saffron-soft); }
 .answer-meta .direct-badge { color: #286247; background: var(--mint); }
+.answer-meta .fallback-badge { color: #3c5e76; background: #e5f0f7; }
 .answer-meta .quality-badge { color: #6e4b0d; background: #fff1c9; cursor: help; }
 
 .sources { margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.48); overflow: hidden; }
@@ -341,6 +342,7 @@ button:focus-visible, textarea:focus-visible {
 [data-theme="dark"] .answer-meta > span { color: #a9bbb2; background: rgba(205,235,220,.08); }
 [data-theme="dark"] .answer-meta .reasoning-badge { color: #f0d18c; background: rgba(217,157,54,.17); }
 [data-theme="dark"] .answer-meta .direct-badge { color: #a9dec2; background: rgba(63,145,105,.17); }
+[data-theme="dark"] .answer-meta .fallback-badge { color: #b5d9ef; background: rgba(72,139,181,.17); }
 [data-theme="dark"] .answer-meta .quality-badge { color: #f0d18c; background: rgba(217,157,54,.15); }
 [data-theme="dark"] .sources { background: rgba(13,34,26,.68); }
 [data-theme="dark"] .sources-toggle,

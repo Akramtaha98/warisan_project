@@ -16,12 +16,14 @@ export function normalizeChatResponse(payload) {
     questionType: payload?.question_type || "general",
     thinkingMode: payload?.thinking_mode || "direct",
     reasoningRequested: Boolean(payload?.reasoning_requested),
+    fallbackUsed: Boolean(payload?.fallback_used),
     qualityScore: typeof payload?.quality_score === "number" ? payload.quality_score : null,
     qualityLabel: payload?.quality_label || "",
     qualityBreakdown: payload?.quality_breakdown || null,
     evaluationNote: payload?.evaluation_note || "",
     datasetMode: payload?.dataset_mode || "production",
     model: payload?.model || "",
+    provider: payload?.provider || "",
     sources: Array.isArray(payload?.sources) ? payload.sources : [],
   };
 }
