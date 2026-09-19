@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createChatResponse, DEFAULT_FREE_MODEL, DEFAULT_MODEL } from "../_lib/chat-core.js";
+import { createChatResponse, createTranslationResponse, DEFAULT_FREE_MODEL, DEFAULT_MODEL } from "../_lib/chat-core.js";
 
 function response(content) {
   return {
@@ -209,4 +209,36 @@ test("greetings work locally without Qwen credentials or irrelevant sources", as
   assert.equal(result.context_count, 0);
   assert.equal(result.quality_score, null);
   assert.deepEqual(result.sources, []);
+});
+
+test("Qwen translates a Malay answer into English without exposing reasoning", async () => {
+  let requestBody;
+  const fetcher = async (_url, options) => {
+    requestBody = JSON.parse(options.body);
+    return response("<think>private translation reasoning</think>A question mark is placed at the end of a direct question.");
+  };
+  const result = await createTranslationResponse(
+    { text: "Tanda soal diletakkan pada akhir ayat tanya langsung." },
+    { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } },
+  );
+  assert.equal(result.translation, "A question mark is placed at the end of a direct question.");
+  assert.equal(result.model, DEFAULT_FREE_MODEL);
+  assert.match(requestBody.messages[0].content, /Malay-to-English/);
+  assert.doesNotMatch(result.translation, /think|private/i);
+});
+
+test("translation falls back locally when Qwen is unavailable", async () => {
+  const fetcher = async () => ({
+    ok: false,
+    status: 429,
+    json: async () => ({ error: { message: "Provider returned error" } }),
+  });
+  const result = await createTranslationResponse(
+    { text: "Tanda soal diletakkan pada akhir ayat tanya langsung. Contohnya, 'Bilakah mesyuarat itu akan bermula?'" },
+    { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } },
+  );
+  assert.equal(result.fallback_used, true);
+  assert.equal(result.provider, "local-translation-fallback");
+  assert.match(result.translation, /question mark is placed at the end of a direct question/i);
+  assert.match(result.translation, /When will the meeting begin\?/i);
 });

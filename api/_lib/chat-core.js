@@ -1,4 +1,5 @@
 import { boundedHistory, retrieveFixtures } from "./retrieval.js";
+import { translateMalayLocally } from "./local-translate.js";
 
 export const DEFAULT_MODEL = "alibaba/qwen-3-14b";
 export const DEFAULT_FREE_MODEL = "qwen/qwen3.8-27b:free";
@@ -174,6 +175,65 @@ export function classifyQuestion(question, matches = [], isFollowUp = false) {
     hard: complexity >= 3,
     complexity,
   };
+}
+
+export async function createTranslationResponse(body, options = {}) {
+  const fetcher = options.fetcher || fetch;
+  const env = options.env || process.env;
+  const text = String(body?.text || "").replace(/\s+/g, " ").trim();
+  if (text.length < 2 || text.length > 4000) {
+    const error = new Error("Teks terjemahan mestilah antara 2 hingga 4000 aksara.");
+    error.statusCode = 422;
+    throw error;
+  }
+
+  const useOpenRouter = Boolean(env.OPENROUTER_API_KEY);
+  const token = env.OPENROUTER_API_KEY || options.token || env.AI_GATEWAY_API_KEY || env.VERCEL_OIDC_TOKEN;
+  if (!token) return {
+    translation: translateMalayLocally(text),
+    model: "local-rule-based",
+    provider: "local-translation-fallback",
+    fallback_used: true,
+  };
+  const model = useOpenRouter ? env.QWEN_MODEL || DEFAULT_FREE_MODEL : env.QWEN_GATEWAY_MODEL || DEFAULT_MODEL;
+  const provider = useOpenRouter
+    ? {
+        name: "openrouter-free",
+        url: OPENROUTER_URL,
+        headers: {
+          "HTTP-Referer": env.PUBLIC_APP_URL || "https://warisanproject.vercel.app",
+          "X-Title": "Warisan Malay Chatbot",
+        },
+      }
+    : { name: "vercel-ai-gateway", url: VERCEL_GATEWAY_URL };
+
+  try {
+    const translation = await callQwen([
+    {
+      role: "system",
+      content: "You are a professional Malay-to-English translator. /no_think Translate faithfully into clear natural English. Preserve examples and punctuation. Return only the English translation without commentary or quotation marks.",
+    },
+    { role: "user", content: text },
+  ], {
+    fetcher,
+    token,
+    model,
+    maxTokens: 750,
+    temperature: 0.1,
+    timeoutMs: 28_000,
+    url: provider.url,
+    headers: provider.headers,
+  });
+
+    return { translation, model, provider: provider.name, fallback_used: false };
+  } catch {
+    return {
+      translation: translateMalayLocally(text),
+      model: "local-rule-based",
+      provider: "local-translation-fallback",
+      fallback_used: true,
+    };
+  }
 }
 
 export async function createChatResponse(body, options = {}) {

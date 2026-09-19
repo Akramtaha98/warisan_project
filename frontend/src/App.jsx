@@ -9,6 +9,8 @@ import {
   Database,
   HelpCircle,
   History,
+  Languages,
+  LoaderCircle,
   Gauge,
   Menu,
   MessageCircleMore,
@@ -27,7 +29,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { askQuestion, getHealth, sendFeedback } from "./lib/api";
+import { askQuestion, getHealth, sendFeedback, translateAnswer } from "./lib/api";
 import { demoSuggestions, intentLabels, suggestions } from "./data/suggestions";
 import { loadChatHistory, removeConversation, saveChatHistory, updateConversation } from "./lib/history";
 import { applyTheme, resolveTheme, saveTheme } from "./lib/theme";
@@ -243,11 +245,32 @@ function Feedback({ message }) {
 }
 
 function Message({ message }) {
+  const [translation, setTranslation] = useState(null);
+  const [translationOpen, setTranslationOpen] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState("");
   const assistant = message.role === "assistant";
   const quality = message.meta?.qualityBreakdown;
   const qualityTitle = quality
     ? `Asas fakta ${quality.grounding} · Relevan ${quality.relevance} · Lengkap ${quality.completeness} · Bahasa ${quality.language}`
     : "";
+
+  async function handleTranslation() {
+    if (translation?.text) {
+      setTranslationOpen((current) => !current);
+      return;
+    }
+    setTranslating(true);
+    setTranslationError("");
+    try {
+      setTranslation(await translateAnswer(message.content));
+      setTranslationOpen(true);
+    } catch (requestError) {
+      setTranslationError(requestError.message);
+    } finally {
+      setTranslating(false);
+    }
+  }
   return (
     <article className={`message-row ${assistant ? "assistant" : "user"}`}>
       {assistant && <div className="assistant-avatar"><Sparkles size={17} /></div>}
@@ -272,6 +295,19 @@ function Message({ message }) {
               )}
             </div>
             <SourceList sources={message.meta.sources} />
+            <div className="translation-section">
+              <button className="translate-button" onClick={handleTranslation} disabled={translating} aria-expanded={translationOpen}>
+                {translating ? <LoaderCircle className="translate-spinner" size={14} /> : <Languages size={14} />}
+                {translating ? "Translating…" : translation?.text ? translationOpen ? "Hide English" : "Show English" : "Translate to English"}
+              </button>
+              {translationError && <span className="translation-error">{translationError} <button onClick={handleTranslation}>Try again</button></span>}
+              {translation?.text && translationOpen && (
+                <div className="translation-card">
+                  <span><Languages size={13} /> {translation.fallbackUsed ? "Basic English translation" : "English translation"}</span>
+                  <p>{translation.text}</p>
+                </div>
+              )}
+            </div>
             <Feedback message={message} />
           </>
         )}

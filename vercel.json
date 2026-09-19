@@ -6,6 +6,9 @@
   "functions": {
     "api/chat.js": {
       "maxDuration": 60
+    },
+    "api/translate.js": {
+      "maxDuration": 60
     }
   },
   "headers": [

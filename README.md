@@ -222,6 +222,12 @@ from the closest matching local QA record. Greetings are also handled locally.
 This fallback keeps the website usable without sending the question to another
 unapproved provider; it does not pretend that the fallback answer came from Qwen3.
 
+Each completed answer also includes a **Translate to English** button. Translation
+is requested only when the user clicks it, uses the same configured Qwen provider,
+keeps the original Malay answer visible, and can be shown or hidden below it. If
+Qwen is unavailable, a clearly labelled basic local translation keeps the button
+usable without sending the answer to another provider.
+
 Deploy from the repository root:
 
 ```bash

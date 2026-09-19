@@ -239,6 +239,17 @@ button:focus-visible, textarea:focus-visible {
 .source-item > span { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 6px; background: var(--mint); color: var(--forest); font-size: 9px; font-weight: 800; }
 .source-item p { margin: 0; color: #6a7b73; font-size: 10px; line-height: 1.5; }
 
+.translation-section { margin-top: 9px; }
+.translate-button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.5); color: #536b60; font-size: 9.5px; font-weight: 700; cursor: pointer; transition: color .2s, border-color .2s, background .2s, transform .2s; }
+.translate-button:hover:not(:disabled) { transform: translateY(-1px); border-color: rgba(18,55,42,.22); background: white; color: var(--forest); }
+.translate-button:disabled { cursor: wait; opacity: .72; }
+.translate-spinner { animation: soft-spin .9s linear infinite; }
+.translation-error { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; color: var(--danger); font-size: 9px; }
+.translation-error button { padding: 0; border: 0; border-bottom: 1px solid currentColor; background: transparent; color: inherit; font-size: inherit; font-weight: 700; cursor: pointer; }
+.translation-card { margin-top: 8px; padding: 13px 15px; border: 1px solid rgba(58,102,130,.14); border-radius: 12px; background: #f3f8fb; color: #294454; }
+.translation-card > span { display: flex; align-items: center; gap: 5px; margin-bottom: 7px; color: #55758a; font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.translation-card p { margin: 0; font-size: 12px; line-height: 1.65; }
+
 .message-actions { display: flex; align-items: center; gap: 2px; margin-top: 8px; padding-left: 2px; }
 .message-actions button { width: 29px; height: 27px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; background: transparent; color: #87938d; cursor: pointer; }
 .message-actions button:hover, .message-actions button.is-active { background: rgba(18,55,42,.07); color: var(--forest); }
@@ -350,6 +361,10 @@ button:focus-visible, textarea:focus-visible {
 [data-theme="dark"] .thinking-card p,
 [data-theme="dark"] .action-label { color: #9fb1a8; }
 [data-theme="dark"] .source-item > span { background: #193d2f; color: #a9dec2; }
+[data-theme="dark"] .translate-button { border-color: rgba(218,239,228,.13); background: rgba(255,255,255,.04); color: #9fb9ac; }
+[data-theme="dark"] .translate-button:hover:not(:disabled) { border-color: rgba(137,199,168,.28); background: #17372b; color: #d6eade; }
+[data-theme="dark"] .translation-card { border-color: rgba(126,179,211,.17); background: rgba(26,52,66,.72); color: #d7e8f1; }
+[data-theme="dark"] .translation-card > span { color: #9fc7dd; }
 [data-theme="dark"] .message-actions button { color: #81978c; }
 [data-theme="dark"] .message-actions button:hover,
 [data-theme="dark"] .message-actions button.is-active { color: #c8e4d5; background: rgba(205,235,220,.09); }

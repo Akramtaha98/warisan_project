@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { askQuestion, normalizeChatResponse, sendFeedback } from "../src/lib/api.js";
+import { askQuestion, normalizeChatResponse, sendFeedback, translateAnswer } from "../src/lib/api.js";
 
 test("normalizes optional reasoning metadata", () => {
   const result = normalizeChatResponse({ answer: "  Jawapan.  ", thinking_mode: "thinking", fallback_used: true, provider: "local-dataset-fallback" });
@@ -47,6 +47,19 @@ test("API errors expose the safe server detail", async () => {
     json: async () => ({ detail: "Sistem jawapan belum tersedia." }),
   });
   await assert.rejects(() => askQuestion("Soalan", [], fetcher), /belum tersedia/);
+});
+
+test("answer translation uses the same-origin translation API", async () => {
+  let request;
+  const fetcher = async (...args) => {
+    request = args;
+    return { ok: true, json: async () => ({ translation: "A question mark ends a direct question.", fallback_used: false }) };
+  };
+  const translation = await translateAnswer("Tanda soal mengakhiri ayat tanya.", fetcher);
+  assert.equal(translation.text, "A question mark ends a direct question.");
+  assert.equal(translation.fallbackUsed, false);
+  assert.equal(request[0], "/api/translate");
+  assert.equal(JSON.parse(request[1].body).text, "Tanda soal mengakhiri ayat tanya.");
 });
 
 test("normalizes the Qwen3 answer-quality assessment", () => {

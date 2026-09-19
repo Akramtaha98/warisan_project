@@ -2,11 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("Vercel builds the Vite frontend and bounds the chat function", async () => {
+test("Vercel builds the Vite frontend and bounds the AI functions", async () => {
   const config = JSON.parse(await readFile(new URL("../../vercel.json", import.meta.url)));
   assert.equal(config.framework, "vite");
   assert.equal(config.outputDirectory, "frontend/dist");
   assert.equal(config.functions["api/chat.js"].maxDuration, 60);
+  assert.equal(config.functions["api/translate.js"].maxDuration, 60);
 });
 
 test("deployment excludes local databases, secrets, models, and development caches", async () => {

@@ -42,6 +42,19 @@ export async function getHealth(fetcher = fetch) {
   return parseResponse(response);
 }
 
+export async function translateAnswer(text, fetcher = fetch) {
+  const response = await fetcher("/api/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  const payload = await parseResponse(response);
+  return {
+    text: String(payload?.translation || "").trim(),
+    fallbackUsed: Boolean(payload?.fallback_used),
+  };
+}
+
 export async function sendFeedback(payload, fetcher = fetch) {
   const response = await fetcher("/api/feedback", {
     method: "POST",
