@@ -21,11 +21,25 @@ and no question is sent to a hosted AI service.
 | Weak-query recovery | Adaptive retrieval and query-specific HyDE |
 | Answer generation | Qwen3 8B (Q5_K_M GGUF) through llama.cpp |
 | Selective reasoning | Complex questions use `/think`; direct questions use `/no_think` |
-| Local interface | Responsive React UI with source previews, feedback, and system status |
+| Local interface | Responsive React UI with source previews, English translation, feedback memory, and system status |
 
 This is a **DBP language-advisory assistant**, not a general-purpose knowledge bot.
 Qwen3 improves Malay generation and reasoning, but it is not allowed to invent an
 answer when the DBP collection does not support one.
+
+### Feedback learning
+
+The useful/not-useful controls form a transparent, per-user feedback loop:
+
+- A **useful** rating saves the answer as a preferred example for similar questions.
+- A **not useful** rating opens a correction box. The correction is supplied to Qwen3
+  on related future questions and can be reused for an exact match during an API outage.
+- Relevant feedback is labelled in the answer metadata when it is used.
+
+This is feedback memory, not instant retraining of the Qwen3 model. On the Vercel demo,
+the memory stays in that user's browser and is not shared with other users. The lab-PC
+deployment also writes feedback to `data_eval/user_feedback.csv`, which can later be
+reviewed and converted into a curated fine-tuning or evaluation dataset.
 
 ---
 

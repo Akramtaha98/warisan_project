@@ -41,6 +41,17 @@ test("chat request can explicitly select deep reasoning", async () => {
   assert.equal(body.reasoning_mode, "deep");
 });
 
+test("chat request sends relevant feedback memory for future answers", async () => {
+  let body;
+  const fetcher = async (_url, options) => {
+    body = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ answer: "Jawapan dipertingkat." }) };
+  };
+  const memory = [{ rating: "unhelpful", question: "Soalan lama", answer: "Salah", correction: "Jawapan tepat" }];
+  await askQuestion("Soalan lama", [], fetcher, "auto", memory);
+  assert.deepEqual(body.feedback_memory, memory);
+});
+
 test("API errors expose the safe server detail", async () => {
   const fetcher = async () => ({
     ok: false,
@@ -81,6 +92,7 @@ test("feedback sends the selected rating", async () => {
     body = JSON.parse(options.body);
     return { ok: true, json: async () => ({ status: "saved" }) };
   };
-  await sendFeedback({ message_id: "m1", rating: "helpful" }, fetcher);
+  await sendFeedback({ message_id: "m1", rating: "helpful", correction: "" }, fetcher);
   assert.equal(body.rating, "helpful");
+  assert.equal(body.correction, "");
 });

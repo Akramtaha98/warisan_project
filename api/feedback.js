@@ -4,5 +4,9 @@ export default function handler(request, response) {
   if (!["helpful", "unhelpful"].includes(rating)) {
     return response.status(422).json({ detail: "Penilaian tidak sah." });
   }
-  return response.status(201).json({ status: "accepted" });
+  const correction = String(request.body?.correction || "").trim();
+  if (rating === "unhelpful" && (correction.length < 3 || correction.length > 2000)) {
+    return response.status(422).json({ detail: "Sila berikan pembetulan antara 3 hingga 2000 aksara." });
+  }
+  return response.status(201).json({ status: "accepted", learning_mode: "browser-feedback-memory" });
 }

@@ -17,6 +17,7 @@ export function normalizeChatResponse(payload) {
     thinkingMode: payload?.thinking_mode || "direct",
     reasoningRequested: Boolean(payload?.reasoning_requested),
     fallbackUsed: Boolean(payload?.fallback_used),
+    feedbackMemoryUsed: Number.isFinite(Number(payload?.feedback_memory_used)) ? Number(payload.feedback_memory_used) : 0,
     qualityScore: typeof payload?.quality_score === "number" ? payload.quality_score : null,
     qualityLabel: payload?.quality_label || "",
     qualityBreakdown: payload?.quality_breakdown || null,
@@ -28,11 +29,11 @@ export function normalizeChatResponse(payload) {
   };
 }
 
-export async function askQuestion(question, history = [], fetcher = fetch, reasoningMode = "auto") {
+export async function askQuestion(question, history = [], fetcher = fetch, reasoningMode = "auto", feedbackMemory = []) {
   const response = await fetcher("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question, history, reasoning_mode: reasoningMode }),
+    body: JSON.stringify({ question, history, reasoning_mode: reasoningMode, feedback_memory: feedbackMemory }),
   });
   return normalizeChatResponse(await parseResponse(response));
 }

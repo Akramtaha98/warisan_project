@@ -40,6 +40,7 @@ class FeedbackRequest(BaseModel):
     rating: Literal["helpful", "unhelpful"]
     reason: str = Field(default="", max_length=300)
     comment: str = Field(default="", max_length=2000)
+    correction: str = Field(default="", max_length=2000)
     top_score: Optional[float] = None
     question_type: str = Field(default="general", max_length=80)
     thinking_mode: str = Field(default="direct", max_length=80)

@@ -30,6 +30,7 @@ import {
   Zap,
 } from "lucide-react";
 import { askQuestion, getHealth, sendFeedback, translateAnswer } from "./lib/api";
+import { loadFeedbackMemory, relevantFeedback, rememberFeedback } from "./lib/feedback-memory";
 import { demoSuggestions, intentLabels, suggestions } from "./data/suggestions";
 import { loadChatHistory, removeConversation, saveChatHistory, updateConversation } from "./lib/history";
 import { applyTheme, resolveTheme, saveTheme } from "./lib/theme";
@@ -204,12 +205,17 @@ function SourceList({ sources }) {
 }
 
 function Feedback({ message }) {
-  const [rating, setRating] = useState(null);
+  const [rating, setRating] = useState(() =>
+    loadFeedbackMemory().find((item) => item.id === message.id)?.rating || null);
   const [copied, setCopied] = useState(false);
+  const [showCorrection, setShowCorrection] = useState(false);
+  const [correction, setCorrection] = useState("");
+  const [feedbackNote, setFeedbackNote] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  async function rate(value) {
-    if (rating) return;
-    setRating(value);
+  async function saveRating(value, correctedAnswer = "") {
+    if (saving || rating) return;
+    setSaving(true);
     try {
       await sendFeedback({
         message_id: message.id,
@@ -219,10 +225,35 @@ function Feedback({ message }) {
         top_score: message.meta?.topScore,
         question_type: message.meta?.questionType,
         thinking_mode: message.meta?.thinkingMode,
+        correction: correctedAnswer,
       });
+      rememberFeedback({
+        messageId: message.id,
+        question: message.question,
+        answer: message.content,
+        rating: value,
+        correction: correctedAnswer,
+      });
+      setRating(value);
+      setShowCorrection(false);
+      setFeedbackNote(value === "helpful"
+        ? "Terima kasih! Jawapan ini akan diutamakan untuk soalan yang serupa."
+        : "Pembetulan disimpan dan akan membantu jawapan yang serupa selepas ini.");
     } catch {
-      setRating(null);
+      setFeedbackNote("Maklum balas tidak dapat disimpan. Sila cuba lagi.");
+    } finally {
+      setSaving(false);
     }
+  }
+
+  function rate(value) {
+    if (rating || saving) return;
+    if (value === "unhelpful") {
+      setShowCorrection(true);
+      setFeedbackNote("");
+      return;
+    }
+    saveRating(value);
   }
 
   async function copyAnswer() {
@@ -232,14 +263,36 @@ function Feedback({ message }) {
   }
 
   return (
-    <div className="message-actions">
-      <button onClick={copyAnswer} aria-label="Salin jawapan" title="Salin jawapan">
-        {copied ? <Check size={15} /> : <Clipboard size={15} />}
-      </button>
-      <span className="action-divider" />
-      <span className="action-label">Berguna?</span>
-      <button className={rating === "helpful" ? "is-active" : ""} onClick={() => rate("helpful")} aria-label="Jawapan berguna"><ThumbsUp size={15} /></button>
-      <button className={rating === "unhelpful" ? "is-active" : ""} onClick={() => rate("unhelpful")} aria-label="Jawapan tidak berguna"><ThumbsDown size={15} /></button>
+    <div className="feedback-area">
+      <div className="message-actions">
+        <button onClick={copyAnswer} aria-label="Salin jawapan" title="Salin jawapan">
+          {copied ? <Check size={15} /> : <Clipboard size={15} />}
+        </button>
+        <span className="action-divider" />
+        <span className="action-label">Berguna?</span>
+        <button className={rating === "helpful" ? "is-active" : ""} onClick={() => rate("helpful")} disabled={saving} aria-label="Jawapan berguna"><ThumbsUp size={15} /></button>
+        <button className={rating === "unhelpful" ? "is-active" : ""} onClick={() => rate("unhelpful")} disabled={saving} aria-label="Jawapan tidak berguna"><ThumbsDown size={15} /></button>
+      </div>
+      {showCorrection && (
+        <div className="feedback-correction">
+          <strong>Apa jawapan yang lebih tepat?</strong>
+          <p>Pembetulan anda akan digunakan sebagai panduan untuk soalan yang serupa pada peranti ini.</p>
+          <textarea
+            value={correction}
+            onChange={(event) => setCorrection(event.target.value.slice(0, 2000))}
+            placeholder="Tulis pembetulan atau terangkan kesilapan…"
+            aria-label="Pembetulan jawapan"
+            rows={3}
+          />
+          <div>
+            <button className="feedback-cancel" onClick={() => setShowCorrection(false)}>Batal</button>
+            <button className="feedback-save" onClick={() => saveRating("unhelpful", correction)} disabled={correction.trim().length < 3 || saving}>
+              {saving ? "Menyimpan…" : "Simpan pembetulan"}
+            </button>
+          </div>
+        </div>
+      )}
+      {feedbackNote && <p className={`feedback-note ${rating ? "is-saved" : ""}`} role="status">{feedbackNote}</p>}
     </div>
   );
 }
@@ -291,6 +344,11 @@ function Message({ message }) {
               {message.meta.qualityScore !== null && (
                 <span className="quality-badge" title={`${message.meta.qualityLabel}. ${qualityTitle}. ${message.meta.evaluationNote}`}>
                   <Gauge size={13} /> Kualiti {message.meta.fallbackUsed ? "dataset" : "Qwen3"} {message.meta.qualityScore}/100
+                </span>
+              )}
+              {message.meta.feedbackMemoryUsed > 0 && (
+                <span className="feedback-memory-badge" title="Jawapan ini mengambil kira maklum balas anda yang berkaitan.">
+                  <ThumbsUp size={13} /> Maklum balas digunakan
                 </span>
               )}
             </div>
@@ -491,7 +549,8 @@ export default function App() {
     setChatState((current) => updateConversation(current, sessionId, nextMessages));
     try {
       const history = startingMessages.slice(-6).map(({ role, content }) => ({ role, content }));
-      const response = await askQuestion(prompt, history, undefined, forceDeepThinking ? "deep" : "auto");
+      const memory = relevantFeedback(prompt);
+      const response = await askQuestion(prompt, history, undefined, forceDeepThinking ? "deep" : "auto", memory);
       setChatState((current) => {
         const target = current.sessions.find((session) => session.id === sessionId);
         const targetMessages = target?.messages || nextMessages;

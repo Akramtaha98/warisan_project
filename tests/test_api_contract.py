@@ -53,6 +53,7 @@ class ApiContractTests(unittest.TestCase):
                     "question": "=IMPORTXML('bad')",
                     "answer": "Jawapan",
                     "rating": "helpful",
+                    "correction": "Pembetulan tersimpan",
                     "thinking_mode": "thinking",
                 },
             )
@@ -62,6 +63,7 @@ class ApiContractTests(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertTrue(rows[0]["question"].startswith("'="))
         self.assertEqual(rows[0]["rating"], "helpful")
+        self.assertEqual(rows[0]["correction"], "Pembetulan tersimpan")
 
 
 if __name__ == "__main__":

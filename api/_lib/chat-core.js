@@ -100,7 +100,38 @@ function formatContexts(matches) {
   return matches.map((match, index) => `[${index + 1}] ${match.document}`).join("\n\n");
 }
 
-function createDatasetFallback(question, retrieval, routing) {
+function normalizeFeedbackMemory(items) {
+  if (!Array.isArray(items)) return [];
+  return items.slice(0, 6).flatMap((item) => {
+    const rating = item?.rating;
+    const question = String(item?.question || "").replace(/\s+/g, " ").trim().slice(0, 2000);
+    const answer = String(item?.answer || "").replace(/\s+/g, " ").trim().slice(0, 4000);
+    const correction = String(item?.correction || "").replace(/\s+/g, " ").trim().slice(0, 2000);
+    if (!["helpful", "unhelpful"].includes(rating) || !question || !answer) return [];
+    if (rating === "unhelpful" && correction.length < 3) return [];
+    return [{ rating, question, answer, correction }];
+  });
+}
+
+function feedbackSimilarity(left, right) {
+  const tokenize = (value) => new Set(String(value || "").toLocaleLowerCase("ms").match(/[\p{L}\p{N}]{3,}/gu) || []);
+  const a = tokenize(left);
+  const b = tokenize(right);
+  if (!a.size || !b.size) return 0;
+  let shared = 0;
+  for (const token of a) if (b.has(token)) shared += 1;
+  return shared / Math.max(1, Math.min(a.size, b.size));
+}
+
+function formatFeedbackMemory(items) {
+  if (!items.length) return "Tiada";
+  return items.map((item, index) => item.rating === "helpful"
+    ? `[${index + 1}] DISUKAI — Soalan: ${item.question}\nJawapan terdahulu: ${item.answer}`
+    : `[${index + 1}] PERLU DIBETULKAN — Soalan: ${item.question}\nJawapan ditolak: ${item.answer}\nPembetulan pengguna: ${item.correction}`,
+  ).join("\n\n");
+}
+
+function createDatasetFallback(question, retrieval, routing, feedbackMemory = []) {
   const isGreeting = /^(hi|hai|hello|helo|salam|assalamualaikum)[!. ]*$/i.test(question);
   if (isGreeting) {
     return {
@@ -109,6 +140,20 @@ function createDatasetFallback(question, retrieval, routing) {
       provider: "local-dataset-fallback",
       fallback: true,
       greeting: true,
+    };
+  }
+
+  const learnedCorrection = feedbackMemory.find((item) =>
+    item.rating === "unhelpful" && item.correction && feedbackSimilarity(question, item.question) >= 0.75,
+  );
+  if (learnedCorrection) {
+    return {
+      content: `${learnedCorrection.correction}\n\n*Jawapan ini menggunakan pembetulan yang anda simpan sebelum ini.*`,
+      model: "local-feedback-memory",
+      provider: "browser-feedback-memory",
+      fallback: true,
+      greeting: false,
+      feedbackApplied: true,
     };
   }
 
@@ -246,6 +291,7 @@ export async function createChatResponse(body, options = {}) {
     throw error;
   }
   const history = boundedHistory(body?.history);
+  const feedbackMemory = normalizeFeedbackMemory(body?.feedback_memory);
   const requestedReasoningMode = body?.reasoning_mode === "deep" ? "deep" : "auto";
   const useOpenRouter = Boolean(env.OPENROUTER_API_KEY);
   const gatewayToken = options.token || env.AI_GATEWAY_API_KEY || env.VERCEL_OIDC_TOKEN;
@@ -299,6 +345,7 @@ export async function createChatResponse(body, options = {}) {
     if (requestedReasoningMode === "deep") routing = { ...routing, hard: true };
   }
   const contexts = formatContexts(retrieval.matches);
+  const feedbackGuide = formatFeedbackMemory(feedbackMemory);
   const conversation = history.map((item) => `${item.role === "user" ? "Pengguna" : "Pembantu"}: ${item.content}`).join("\n");
   const reasoningDirective = routing.hard ? "/think" : "/no_think";
 
@@ -316,12 +363,13 @@ export async function createChatResponse(body, options = {}) {
           ? "Soalan ini memerlukan penaakulan lebih teliti. Analisis semua bahagian dan semak setiap pembetulan terhadap rujukan sebelum memberikan jawapan akhir."
           : "Soalan ini langsung. Berikan jawapan ringkas, tepat dan mudah difahami.",
         "Jika rujukan tidak menyokong jawapan, nyatakan bahawa data demo tidak mencukupi.",
+        "Gunakan maklum balas terdahulu sebagai panduan gaya dan pembetulan, bukan sebagai sumber fakta. Utamakan fakta rujukan jika bercanggah.",
         "Jangan dakwa data sintetik ini sebagai nasihat rasmi DBP. Jangan dedahkan pemikiran dalaman.",
       ].join(" "),
     },
     {
       role: "user",
-      content: `SEJARAH:\n${conversation || "Tiada"}\n\nFAKTA RUJUKAN DEMO:\n${contexts}\n\nSOALAN:\n${question}`,
+      content: `SEJARAH:\n${conversation || "Tiada"}\n\nMAKLUM BALAS TERDAHULU:\n${feedbackGuide}\n\nFAKTA RUJUKAN DEMO:\n${contexts}\n\nSOALAN:\n${question}`,
     },
   ], {
     maxTokens: routing.hard ? 1000 : 550,
@@ -330,7 +378,7 @@ export async function createChatResponse(body, options = {}) {
     timeoutMs: routing.hard ? 38_000 : 28_000,
   });
   } catch {
-    answerResult = createDatasetFallback(question, retrieval, routing);
+    answerResult = createDatasetFallback(question, retrieval, routing, feedbackMemory);
   }
   const answer = answerResult.content;
 
@@ -374,6 +422,7 @@ export async function createChatResponse(body, options = {}) {
     reasoning_depth: answerResult.fallback ? "dataset" : routing.hard ? "deep" : "standard",
     reasoning_requested: requestedReasoningMode === "deep",
     fallback_used: Boolean(answerResult.fallback),
+    feedback_memory_used: answerResult.feedbackApplied ? 1 : feedbackMemory.length,
     context_count: answerResult.greeting ? 0 : retrieval.matches.length,
     model: answerResult.model,
     provider: answerResult.provider,

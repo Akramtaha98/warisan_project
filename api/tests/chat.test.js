@@ -92,6 +92,43 @@ test("the user can force deep reasoning for a simple question", async () => {
   assert.equal(result.context_count, 6);
 });
 
+test("Qwen receives relevant likes and corrections as non-authoritative guidance", async () => {
+  const calls = [];
+  const fetcher = async (_url, options) => {
+    calls.push(JSON.parse(options.body));
+    return calls.length === 1
+      ? response("Tanda soal digunakan pada akhir ayat tanya langsung.")
+      : response('{"overall":90,"grounding":92,"relevance":91,"completeness":86,"language":93}');
+  };
+  const result = await createChatResponse({
+    question: "Apakah fungsi tanda soal?",
+    feedback_memory: [{
+      rating: "unhelpful",
+      question: "Apakah fungsi tanda soal?",
+      answer: "Jawapan salah.",
+      correction: "Tanda soal digunakan pada akhir ayat tanya langsung.",
+    }],
+  }, { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } });
+  assert.match(calls[0].messages[1].content, /Pembetulan pengguna: Tanda soal digunakan/);
+  assert.match(calls[0].messages[0].content, /bukan sebagai sumber fakta/i);
+  assert.equal(result.feedback_memory_used, 1);
+});
+
+test("an exact saved correction remains useful during a Qwen outage", async () => {
+  const result = await createChatResponse({
+    question: "Apakah fungsi tanda soal?",
+    feedback_memory: [{
+      rating: "unhelpful",
+      question: "Apakah fungsi tanda soal?",
+      answer: "Jawapan salah.",
+      correction: "Tanda soal digunakan pada akhir ayat tanya langsung.",
+    }],
+  }, { env: {} });
+  assert.equal(result.provider, "browser-feedback-memory");
+  assert.equal(result.feedback_memory_used, 1);
+  assert.match(result.answer, /pembetulan yang anda simpan/i);
+});
+
 test("judge values are clamped and missing credentials use the local dataset", async () => {
   const fetcher = async (_url, options) => {
     const body = JSON.parse(options.body);
