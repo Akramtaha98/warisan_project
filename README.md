@@ -204,6 +204,13 @@ routes comparison, correction, multi-part and other difficult questions through
 `/think`, retrieves up to six supporting QA records, and removes private
 reasoning tokens before returning the final answer.
 
+Users can also enable **Fikir mendalam** beside the message box. This explicitly
+forces `/think` mode and six-reference retrieval for the next question, including
+questions that would normally use the direct route. While waiting, the interface
+shows safe progress stages for understanding, retrieval, comparison and answer
+verification. These stages explain the workflow without exposing private model
+chain-of-thought.
+
 The displayed quality score is between 0 and 100 and combines Qwen3's assessment
 of grounding, relevance, completeness and Malay-language quality. It is useful
 for testing, but it is a model-generated estimate rather than an official DBP or
@@ -322,9 +329,11 @@ kept.
 |---|---|
 | Definition, spelling, terminology, usage, yes/no | `/no_think` |
 | Comparison, grammar analysis, sentence correction, multi-part | `/think` |
+| Any question with **Fikir mendalam** enabled | `/think` with six references |
 
 Thinking is internal. The application removes `<think>...</think>` content and fails
-safely if the model produces reasoning without a final answer.
+safely if the model produces reasoning without a final answer. The visible progress
+panel reports verifiable processing stages, not hidden chain-of-thought tokens.
 
 ### Grounding rules
 

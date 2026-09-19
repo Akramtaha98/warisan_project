@@ -132,6 +132,7 @@ export async function createChatResponse(body, options = {}) {
     throw error;
   }
   const history = boundedHistory(body?.history);
+  const requestedReasoningMode = body?.reasoning_mode === "deep" ? "deep" : "auto";
   const useOpenRouter = Boolean(env.OPENROUTER_API_KEY);
   const gatewayToken = options.token || env.AI_GATEWAY_API_KEY || env.VERCEL_OIDC_TOKEN;
   const providers = [];
@@ -182,9 +183,11 @@ export async function createChatResponse(body, options = {}) {
   };
   let retrieval = retrieveFixtures(question, history, 4);
   let routing = classifyQuestion(question, retrieval.matches, retrieval.retrievalQuery !== question);
+  if (requestedReasoningMode === "deep") routing = { ...routing, hard: true };
   if (routing.hard) {
     retrieval = retrieveFixtures(question, history, 6);
     routing = classifyQuestion(question, retrieval.matches, retrieval.retrievalQuery !== question);
+    if (requestedReasoningMode === "deep") routing = { ...routing, hard: true };
   }
   const contexts = formatContexts(retrieval.matches);
   const conversation = history.map((item) => `${item.role === "user" ? "Pengguna" : "Pembantu"}: ${item.content}`).join("\n");
@@ -251,6 +254,7 @@ export async function createChatResponse(body, options = {}) {
     question_type: routing.type,
     thinking_mode: routing.hard ? "thinking" : "direct",
     reasoning_depth: routing.hard ? "deep" : "standard",
+    reasoning_requested: requestedReasoningMode === "deep",
     context_count: retrieval.matches.length,
     model: answerResult.model,
     provider: answerResult.provider,

@@ -280,22 +280,52 @@ function Message({ message }) {
   );
 }
 
-function ThinkingMessage() {
+const DEEP_PROGRESS_STAGES = [
+  "Memahami maksud dan bahagian soalan",
+  "Mencari enam petikan yang paling berkaitan",
+  "Membandingkan peraturan dan kemungkinan jawapan",
+  "Menyemak ketepatan sebelum menjawab",
+];
+
+function ThinkingMessage({ deep }) {
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    if (!deep) return undefined;
+    const timers = [2200, 5200, 8800].map((delay, index) =>
+      window.setTimeout(() => setStage(index + 1), delay));
+    return () => timers.forEach(window.clearTimeout);
+  }, [deep]);
+
   return (
     <article className="message-row assistant" aria-live="polite">
       <div className="assistant-avatar is-thinking"><Sparkles size={17} /></div>
       <div className="message-column">
         <div className="message-author">Warisan</div>
-        <div className="thinking-card">
-          <span /><span /><span />
-          <p>Mencari dan menilai sumber DBP…</p>
-        </div>
+        {deep ? (
+          <div className="deep-progress">
+            <div className="deep-progress-title"><Sparkles size={15} /><strong>Penaakulan mendalam</strong><span>Lebih teliti, sedikit perlahan</span></div>
+            <ol>
+              {DEEP_PROGRESS_STAGES.map((label, index) => (
+                <li className={index < stage ? "is-done" : index === stage ? "is-active" : ""} key={label}>
+                  <span>{index < stage ? <Check size={12} /> : index + 1}</span>
+                  {label}
+                </li>
+              ))}
+            </ol>
+            <small>Memaparkan langkah kerja yang selamat, bukan pemikiran dalaman model.</small>
+          </div>
+        ) : (
+          <div className="thinking-card">
+            <span /><span /><span />
+            <p>Mencari dan menilai sumber…</p>
+          </div>
+        )}
       </div>
     </article>
   );
 }
 
-function Composer({ value, onChange, onSubmit, disabled, demo }) {
+function Composer({ value, onChange, onSubmit, disabled, demo, deepThinking, onToggleDeepThinking }) {
   const textarea = useRef(null);
   useEffect(() => {
     const node = textarea.current;
@@ -325,8 +355,22 @@ function Composer({ value, onChange, onSubmit, disabled, demo }) {
           aria-label="Soalan Bahasa Melayu"
         />
         <div className="composer-bottom">
-          <span>{value.length ? `${value.length}/${MAX_QUESTION_LENGTH}` : "Enter untuk hantar · Shift + Enter untuk baris baharu"}</span>
-          <button onClick={onSubmit} disabled={disabled || value.trim().length < 2} aria-label="Hantar soalan">
+          <div className="composer-options">
+            <button
+              type="button"
+              className={`reasoning-toggle ${deepThinking ? "is-active" : ""}`}
+              onClick={onToggleDeepThinking}
+              disabled={disabled}
+              aria-pressed={deepThinking}
+              title="Gunakan Qwen3 untuk meneliti soalan dengan lebih lama dan enam rujukan"
+            >
+              <Sparkles size={14} />
+              <span>Fikir mendalam</span>
+              <i aria-hidden="true" />
+            </button>
+            <span className="composer-hint">{value.length ? `${value.length}/${MAX_QUESTION_LENGTH}` : deepThinking ? "Lebih perlahan · 6 rujukan" : "Enter untuk hantar · Shift + Enter untuk baris baharu"}</span>
+          </div>
+          <button className="composer-send" onClick={onSubmit} disabled={disabled || value.trim().length < 2} aria-label="Hantar soalan">
             <ArrowUp size={19} strokeWidth={2.4} />
           </button>
         </div>
@@ -352,6 +396,13 @@ export default function App() {
   });
   const [health, setHealth] = useState(null);
   const [theme, setTheme] = useState(() => resolveTheme());
+  const [deepThinking, setDeepThinking] = useState(() => {
+    try {
+      return window.localStorage.getItem("warisan.deep-thinking.v1") === "true";
+    } catch {
+      return false;
+    }
+  });
   const bottomRef = useRef(null);
   const activeSession = chatState.sessions.find((session) => session.id === chatState.activeSessionId);
   const messages = activeSession?.messages || [];
@@ -374,6 +425,14 @@ export default function App() {
   }, [sidebarCollapsed]);
 
   useEffect(() => {
+    try {
+      window.localStorage.setItem("warisan.deep-thinking.v1", String(deepThinking));
+    } catch {
+      // The option remains usable for this visit when storage is unavailable.
+    }
+  }, [deepThinking]);
+
+  useEffect(() => {
     getHealth().then(setHealth).catch(() => setHealth({ status: "degraded" }));
   }, []);
 
@@ -381,7 +440,7 @@ export default function App() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, loading, chatState.activeSessionId]);
 
-  async function submitQuestion(forcedQuestion, appendUser = true) {
+  async function submitQuestion(forcedQuestion, appendUser = true, forceDeepThinking = deepThinking) {
     const prompt = (forcedQuestion ?? question).trim();
     if (prompt.length < 2 || loading) return;
     const sessionId = chatState.activeSessionId || crypto.randomUUID();
@@ -396,7 +455,7 @@ export default function App() {
     setChatState((current) => updateConversation(current, sessionId, nextMessages));
     try {
       const history = startingMessages.slice(-6).map(({ role, content }) => ({ role, content }));
-      const response = await askQuestion(prompt, history);
+      const response = await askQuestion(prompt, history, undefined, forceDeepThinking ? "deep" : "auto");
       setChatState((current) => {
         const target = current.sessions.find((session) => session.id === sessionId);
         const targetMessages = target?.messages || nextMessages;
@@ -409,7 +468,7 @@ export default function App() {
         }]);
       });
     } catch (requestError) {
-      setError({ message: requestError.message, prompt, sessionId });
+      setError({ message: requestError.message, prompt, sessionId, deepThinking: forceDeepThinking });
     } finally {
       setLoading(false);
       setPendingSessionId(null);
@@ -476,12 +535,12 @@ export default function App() {
           ) : (
             <div className="message-list">
               {messages.map((message) => <Message key={message.id} message={message} />)}
-              {loading && pendingSessionId === chatState.activeSessionId && <ThinkingMessage />}
+              {loading && pendingSessionId === chatState.activeSessionId && <ThinkingMessage deep={deepThinking} />}
               {error?.sessionId === chatState.activeSessionId && (
                 <div className="error-card" role="alert">
                   <HelpCircle size={18} />
                   <div><strong>Jawapan tidak dapat dijana</strong><p>{error.message}</p></div>
-                  <button onClick={() => submitQuestion(error.prompt, false)}>Cuba lagi</button>
+                  <button onClick={() => submitQuestion(error.prompt, false, error.deepThinking)}>Cuba lagi</button>
                 </div>
               )}
               <div ref={bottomRef} />
@@ -489,7 +548,15 @@ export default function App() {
           )}
         </div>
 
-        <Composer value={question} onChange={setQuestion} onSubmit={() => submitQuestion()} disabled={loading} demo={health?.mode === "vercel-demo"} />
+        <Composer
+          value={question}
+          onChange={setQuestion}
+          onSubmit={() => submitQuestion()}
+          disabled={loading}
+          demo={health?.mode === "vercel-demo"}
+          deepThinking={deepThinking}
+          onToggleDeepThinking={() => setDeepThinking((current) => !current)}
+        />
       </main>
     </div>
   );

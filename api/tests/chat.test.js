@@ -71,6 +71,27 @@ test("hard multi-rule questions use Qwen3 thinking mode and six references", asy
   assert.equal(result.sources.length, 6);
 });
 
+test("the user can force deep reasoning for a simple question", async () => {
+  const calls = [];
+  const fetcher = async (_url, options) => {
+    calls.push(JSON.parse(options.body));
+    return calls.length === 1
+      ? response("Tanda soal digunakan pada akhir ayat tanya selepas semakan rujukan.")
+      : response('{"overall":92,"grounding":94,"relevance":93,"completeness":88,"language":94}');
+  };
+
+  const result = await createChatResponse(
+    { question: "Apakah fungsi tanda soal?", reasoning_mode: "deep" },
+    { fetcher, env: { OPENROUTER_API_KEY: "free-test-key" } },
+  );
+
+  assert.equal(calls[0].max_tokens, 1000);
+  assert.match(calls[0].messages[0].content, /\/think/);
+  assert.equal(result.thinking_mode, "thinking");
+  assert.equal(result.reasoning_requested, true);
+  assert.equal(result.context_count, 6);
+});
+
 test("judge values are clamped and missing credentials fail safely", async () => {
   const fetcher = async (_url, options) => {
     const body = JSON.parse(options.body);

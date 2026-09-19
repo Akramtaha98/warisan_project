@@ -26,6 +26,17 @@ test("chat request uses the same-origin JSON API", async () => {
   assert.equal(calls[0][0], "/api/chat");
   assert.equal(JSON.parse(calls[0][1].body).question, "Ejaan kerjasama?");
   assert.deepEqual(JSON.parse(calls[0][1].body).history, history);
+  assert.equal(JSON.parse(calls[0][1].body).reasoning_mode, "auto");
+});
+
+test("chat request can explicitly select deep reasoning", async () => {
+  let body;
+  const fetcher = async (_url, options) => {
+    body = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ answer: "Jawapan yang disemak." }) };
+  };
+  await askQuestion("Semak dengan teliti.", [], fetcher, "deep");
+  assert.equal(body.reasoning_mode, "deep");
 });
 
 test("API errors expose the safe server detail", async () => {
